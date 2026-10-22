@@ -16,6 +16,8 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | Salto | +5 de fuerza de salto | 5 | 30, 60, 90… |
 | Monedas extra | +1 punto por moneda | 3 | 50, 100, 150 |
 | Imán | +8 studs de radio para atraer monedas | 5 | 40, 80, 120… |
+| Suerte | +8% de chance de que una moneda valga el doble | 5 | 60, 120, 180… |
+| Salto extra | +1 salto en el aire (doble y triple salto) | 2 | 100, 200 |
 
 - Las monedas y las mejoras se **guardan** (DataStore) y siguen ahí cuando volvés a entrar.
 - En el fondo del mapa hay un **ranking global** con los 10 jugadores que más monedas recolectaron en total.
@@ -33,7 +35,8 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ReplicatedStorage/ConfigMejoras.lua` | Lista de mejoras (agregar una = agregar una fila) |
 | `src/StarterPlayerScripts/MarcadorMonedas.client.lua` | Marcador de monedas en pantalla |
 | `src/StarterPlayerScripts/Anuncio.client.lua` | Cartel del evento activo con cuenta regresiva |
-| `src/StarterPlayerScripts/Tienda.client.lua` | Interfaz de la tienda |
+| `src/StarterPlayerScripts/SaltoExtra.client.lua` | Saltos extra en el aire (mejora "Salto extra") |
+| `src/StarterPlayerScripts/Tienda.client.lua` | Interfaz de la tienda (con scroll) |
 | `default.project.json` | Configuración de Rojo |
 | `aftman.toml` | Versión de Rojo a usar |
 
@@ -79,7 +82,6 @@ El guardado usa DataStore, así que en Studio hay que:
 
 ## Ideas para seguir
 
-- [ ] Más mejoras en la tienda
 - [ ] Publicar el juego para que lo prueben otras personas
 
 

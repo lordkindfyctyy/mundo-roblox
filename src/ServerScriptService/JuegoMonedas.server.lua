@@ -121,6 +121,12 @@ local function recoger(moneda, jugador)
 	-- Durante la "Hora dorada" Eventos.server.lua pone un multiplicador en Workspace
 	local evento = Workspace:GetAttribute("MultiplicadorEvento") or 1
 	local ganado = (moneda:GetAttribute("Valor") + extra) * evento
+
+	-- "Suerte": cada nivel da una chance de que la moneda valga el doble
+	local nivelSuerte = mejoras and mejoras.Suerte.Value or 0
+	if math.random() < nivelSuerte * ConfigMejoras.SUERTE_POR_NIVEL then
+		ganado *= 2
+	end
 	jugador.leaderstats.Monedas.Value += ganado
 	jugador.leaderstats.Total.Value += ganado
 	animarRecogida(moneda, jugador)

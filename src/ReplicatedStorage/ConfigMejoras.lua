@@ -32,7 +32,23 @@ ConfigMejoras.Lista = {
 		costoBase = 40,
 		nivelMaximo = 5,
 	},
+	{
+		id = "Suerte",
+		nombre = "Suerte",
+		descripcion = "+8% de chance de que una moneda valga el doble",
+		costoBase = 60,
+		nivelMaximo = 5,
+	},
+	{
+		id = "SaltoDoble",
+		nombre = "Salto extra",
+		descripcion = "+1 salto en el aire (apretá saltar de nuevo)",
+		costoBase = 100,
+		nivelMaximo = 2,
+	},
 }
+
+ConfigMejoras.SUERTE_POR_NIVEL = 0.08 -- probabilidad de "moneda doble" por nivel
 
 ConfigMejoras.IMAN_RADIO_POR_NIVEL = 8 -- studs
 ConfigMejoras.IMAN_VELOCIDAD = 30 -- studs por segundo con que viaja la moneda

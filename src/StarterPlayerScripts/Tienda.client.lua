@@ -38,7 +38,7 @@ redondear(botonAbrir, 10)
 local ventana = Instance.new("Frame")
 ventana.AnchorPoint = Vector2.new(0.5, 0.5)
 ventana.Position = UDim2.fromScale(0.5, 0.5)
-ventana.Size = UDim2.fromOffset(420, 65 + #ConfigMejoras.Lista * 80 + 30)
+ventana.Size = UDim2.fromOffset(420, 440)
 ventana.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 ventana.Visible = false
 ventana.Parent = pantalla
@@ -63,6 +63,16 @@ mensaje.TextSize = 16
 mensaje.TextColor3 = Color3.new(1, 1, 1)
 mensaje.Text = ""
 mensaje.Parent = ventana
+
+-- Lista con scroll: entran todas las mejoras aunque la pantalla sea chica
+local lista = Instance.new("ScrollingFrame")
+lista.Position = UDim2.fromOffset(0, 55)
+lista.Size = UDim2.new(1, 0, 1, -85)
+lista.BackgroundTransparency = 1
+lista.BorderSizePixel = 0
+lista.ScrollBarThickness = 6
+lista.CanvasSize = UDim2.fromOffset(0, #ConfigMejoras.Lista * 80)
+lista.Parent = ventana
 
 botonAbrir.Activated:Connect(function()
 	ventana.Visible = not ventana.Visible
@@ -91,10 +101,10 @@ end
 
 for i, mejora in ConfigMejoras.Lista do
 	local marco = Instance.new("Frame")
-	marco.Position = UDim2.new(0, 15, 0, 55 + (i - 1) * 80)
-	marco.Size = UDim2.new(1, -30, 0, 70)
+	marco.Position = UDim2.new(0, 15, 0, (i - 1) * 80)
+	marco.Size = UDim2.new(1, -36, 0, 70)
 	marco.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	marco.Parent = ventana
+	marco.Parent = lista
 	redondear(marco, 10)
 
 	local nombre = Instance.new("TextLabel")
