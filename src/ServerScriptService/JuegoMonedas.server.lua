@@ -1,12 +1,14 @@
 -- Juego de ejemplo: "Recolector de Monedas"
 -- Cada jugador tiene un puntaje (leaderstats) y suma puntos al tocar monedas.
--- Hay monedas doradas (1 punto) y azules, mas raras (5 puntos).
+-- Hay monedas doradas (1 punto), azules (5) y una gigante muy rara (25).
 -- Con la mejora "Iman" las monedas cercanas viajan hacia el jugador.
+-- Eventos.server.lua puede pedir monedas extra (lluvia) y duplicar los puntos (hora dorada).
 
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -18,6 +20,7 @@ local AREA = 80 -- las monedas aparecen dentro de un cuadrado de AREA x AREA
 local VELOCIDAD_GIRO = math.rad(120) -- grados por segundo
 local DISTANCIA_RECOGER = 3 -- una moneda atraida por el iman se recoge a esta distancia
 local VOLUMEN_SONIDO = 0.6
+local DURACION_TEMPORAL = 25 -- las monedas de la lluvia desaparecen solas si nadie las agarra
 
 -- sonido: ID de un efecto publico de Roblox. Si no suena, probá con otro ID del Toolbox.
 local TIPOS = {
@@ -25,7 +28,7 @@ local TIPOS = {
 		nombre = "Dorada",
 		valor = 1,
 		color = Color3.fromRGB(255, 205, 0),
-		probabilidad = 0.85,
+		probabilidad = 0.82,
 		sonido = "rbxassetid://4612374807",
 	},
 	{
@@ -34,6 +37,14 @@ local TIPOS = {
 		color = Color3.fromRGB(0, 170, 255),
 		probabilidad = 0.15,
 		sonido = "rbxassetid://4612375051",
+	},
+	{
+		nombre = "Gigante",
+		valor = 25,
+		color = Color3.fromRGB(190, 60, 255),
+		probabilidad = 0.03,
+		sonido = "rbxassetid://4612374937",
+		tamano = 6,
 	},
 }
 
@@ -107,23 +118,29 @@ local function recoger(moneda, jugador)
 	-- Cada nivel de "Monedas extra" suma 1 punto por moneda
 	local mejoras = jugador:FindFirstChild("Mejoras")
 	local extra = mejoras and mejoras.Multiplicador.Value or 0
-	local ganado = moneda:GetAttribute("Valor") + extra
+	-- Durante la "Hora dorada" Eventos.server.lua pone un multiplicador en Workspace
+	local evento = Workspace:GetAttribute("MultiplicadorEvento") or 1
+	local ganado = (moneda:GetAttribute("Valor") + extra) * evento
 	jugador.leaderstats.Monedas.Value += ganado
 	jugador.leaderstats.Total.Value += ganado
 	animarRecogida(moneda, jugador)
 
-	-- Aparece otra moneda despues de unos segundos
-	task.delay(TIEMPO_RESPAWN, crearMoneda)
+	-- Aparece otra moneda despues de unos segundos (las de la lluvia no se reponen)
+	if not moneda:GetAttribute("Temporal") then
+		task.delay(TIEMPO_RESPAWN, crearMoneda)
+	end
 end
 
--- Crea una moneda en una posicion al azar
-crearMoneda = function()
+-- Crea una moneda en una posicion al azar.
+-- Si es temporal (lluvia), cae desde el cielo, no se repone y desaparece sola.
+crearMoneda = function(temporal)
 	local tipo = elegirTipo()
+	local tamano = tipo.tamano or 3
 
 	local moneda = Instance.new("Part")
 	moneda.Name = "Moneda" .. tipo.nombre
 	moneda.Shape = Enum.PartType.Cylinder
-	moneda.Size = Vector3.new(0.3, 3, 3)
+	moneda.Size = Vector3.new(0.3, tamano, tamano)
 	moneda.Color = tipo.color
 	moneda.Material = Enum.Material.Neon
 	moneda.Anchored = true
@@ -131,13 +148,27 @@ crearMoneda = function()
 	moneda:SetAttribute("Valor", tipo.valor)
 	moneda:SetAttribute("Sonido", tipo.sonido)
 	moneda:SetAttribute("Recogida", false)
+	moneda:SetAttribute("Temporal", temporal == true)
 	moneda:SetAttribute("Angulo", math.random() * math.pi * 2)
-	moneda.Position = Vector3.new(
+
+	local destino = Vector3.new(
 		math.random(-AREA / 2, AREA / 2),
-		3,
+		1.5 + tamano / 2, -- la moneda queda apoyada a la misma altura sin importar el tamano
 		math.random(-AREA / 2, AREA / 2)
 	)
+	moneda.Position = temporal and destino + Vector3.new(0, 50, 0) or destino
 	moneda.Parent = carpeta
+
+	if temporal then
+		local info = TweenInfo.new(1.5, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out)
+		TweenService:Create(moneda, info, { Position = destino }):Play()
+
+		task.delay(DURACION_TEMPORAL, function()
+			if moneda.Parent and not moneda:GetAttribute("Recogida") then
+				moneda:Destroy()
+			end
+		end)
+	end
 
 	moneda.Touched:Connect(function(otraParte)
 		local jugador = Players:GetPlayerFromCharacter(otraParte.Parent)
@@ -196,3 +227,15 @@ end
 for _ = 1, CANTIDAD_MONEDAS do
 	crearMoneda()
 end
+
+-- Eventos.server.lua dispara esto para pedir una lluvia de monedas extra
+local pedirLluvia = Instance.new("BindableEvent")
+pedirLluvia.Name = "CrearMonedasExtra"
+pedirLluvia.Parent = ServerStorage
+
+pedirLluvia.Event:Connect(function(cantidad)
+	for _ = 1, cantidad do
+		crearMoneda(true)
+		task.wait(0.1) -- caen una atras de otra
+	end
+end)

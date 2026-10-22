@@ -4,8 +4,9 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 
 ## Cómo se juega
 
-- Aparecen 20 monedas girando por el mapa. Las **doradas** valen 1 punto y las **azules** (más raras) valen 5.
+- Aparecen 20 monedas girando por el mapa. Las **doradas** valen 1 punto, las **azules** (más raras) valen 5 y la **gigante violeta** (muy rara) vale 25.
 - Cada moneda suena al recogerla (un sonido distinto para la dorada y la azul).
+- Cada tanto hay un **evento**: la *Hora dorada* (las monedas valen el doble durante 30 segundos) o la *Lluvia de monedas* (caen 40 monedas extra del cielo). Un cartel arriba avisa cuál está activo.
 - Tu puntaje se ve en el marcador de arriba y en la tabla de jugadores.
 - Con el botón **Tienda** (al medio del borde izquierdo) comprás mejoras con las monedas:
 
@@ -25,11 +26,13 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 |---|---|
 | `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, las hace girar, suma los puntos y atrae monedas con el imán |
 | `src/ServerScriptService/Mapa.server.lua` | Genera el mapa: césped, cerco, árboles, flores y cartel de bienvenida |
+| `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
 | `src/ServerScriptService/Ranking.server.lua` | Cartel con el ranking global (top 10 de monedas recolectadas en total) |
 | `src/ServerScriptService/TiendaMejoras.server.lua` | Valida las compras y aplica velocidad y salto |
 | `src/ServerScriptService/GuardadoMonedas.server.lua` | Guarda y carga monedas y mejoras |
 | `src/ReplicatedStorage/ConfigMejoras.lua` | Lista de mejoras (agregar una = agregar una fila) |
 | `src/StarterPlayerScripts/MarcadorMonedas.client.lua` | Marcador de monedas en pantalla |
+| `src/StarterPlayerScripts/Anuncio.client.lua` | Cartel del evento activo con cuenta regresiva |
 | `src/StarterPlayerScripts/Tienda.client.lua` | Interfaz de la tienda |
 | `default.project.json` | Configuración de Rojo |
 | `aftman.toml` | Versión de Rojo a usar |
@@ -76,7 +79,6 @@ El guardado usa DataStore, así que en Studio hay que:
 
 ## Ideas para seguir
 
-- [ ] Monedas especiales o eventos (lluvia de monedas, moneda gigante)
 - [ ] Más mejoras en la tienda
 - [ ] Publicar el juego para que lo prueben otras personas
 
