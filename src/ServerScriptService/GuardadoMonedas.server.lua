@@ -53,10 +53,13 @@ local function cargar(jugador)
 	-- Quien jugaba antes del ranking no tiene Total: arranca con las monedas que ya tenia
 	total.Value = guardado.Total or monedas.Value
 	renacimientos.Value = guardado.Renacimientos or 0
+	jugador:SetAttribute("UltimoDia", guardado.UltimoDia or 0)
+	jugador:SetAttribute("Racha", guardado.Racha or 0)
 	for _, nivel in mejoras:GetChildren() do
 		nivel.Value = (guardado.Mejoras and guardado.Mejoras[nivel.Name]) or 0
 	end
 	cargados[jugador] = true
+	jugador:SetAttribute("DatosCargados", true) -- Recompensa.server.lua y el cliente esperan esto
 end
 
 local function guardar(jugador)
@@ -75,6 +78,8 @@ local function guardar(jugador)
 		Monedas = monedas.Value,
 		Total = leaderstats.Total.Value,
 		Renacimientos = leaderstats.Renacimientos.Value,
+		UltimoDia = jugador:GetAttribute("UltimoDia") or 0,
+		Racha = jugador:GetAttribute("Racha") or 0,
 		Mejoras = {},
 	}
 	for _, nivel in mejoras:GetChildren() do
