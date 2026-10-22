@@ -14,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 
 local ConfigMejoras = require(ReplicatedStorage:WaitForChild("ConfigMejoras"))
 local ConfigRenacer = require(ReplicatedStorage:WaitForChild("ConfigRenacer"))
+local ConfigMascotas = require(ReplicatedStorage:WaitForChild("ConfigMascotas"))
 
 local CANTIDAD_MONEDAS = 20
 local TIEMPO_RESPAWN = 5
@@ -137,7 +138,9 @@ local function recoger(moneda, jugador)
 
 	-- Bonus permanente por renacer; redondeamos porque los puntajes son enteros
 	local bonusRenacer = ConfigRenacer.multiplicador(jugador.leaderstats.Renacimientos.Value)
-	ganado = math.max(1, math.floor(ganado * bonusRenacer + 0.5))
+	-- Las mascotas equipadas suman otro bonus (ver ConfigMascotas)
+	local bonusMascotas = ConfigMascotas.multiplicador(jugador)
+	ganado = math.max(1, math.floor(ganado * bonusRenacer * bonusMascotas + 0.5))
 	jugador.leaderstats.Monedas.Value += ganado
 	jugador.leaderstats.Total.Value += ganado
 	animarRecogida(moneda, jugador)

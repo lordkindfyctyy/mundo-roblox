@@ -38,6 +38,12 @@ local function mejorasAlMaximo(jugador)
 	return cantidad
 end
 
+-- Cuantas mascotas distintas tiene
+local function cantidadDeMascotas(jugador)
+	local mascotas = jugador:FindFirstChild("Mascotas")
+	return mascotas and #mascotas:GetChildren() or 0
+end
+
 local ConfigLogros = {}
 
 ConfigLogros.Lista = {
@@ -116,6 +122,22 @@ ConfigLogros.Lista = {
 		valor = function(jugador)
 			return estadistica(jugador, "Renacimientos")
 		end,
+	},
+	{
+		id = "MejorAmigo",
+		nombre = "Mejor amigo",
+		descripcion = "Conseguí tu primera mascota",
+		meta = 1,
+		premio = 100,
+		valor = cantidadDeMascotas,
+	},
+	{
+		id = "Zoologico",
+		nombre = "Zoológico",
+		descripcion = "Juntá 5 mascotas distintas",
+		meta = 5,
+		premio = 400,
+		valor = cantidadDeMascotas,
 	},
 	{
 		id = "Constante",

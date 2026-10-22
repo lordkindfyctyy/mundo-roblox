@@ -22,8 +22,9 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 - Las monedas y las mejoras se **guardan** (DataStore) y siguen ahí cuando volvés a entrar.
 - Con suficientes monedas podés **Renacer** (fila violeta al pie de la tienda): reinicia tus monedas y mejoras a cambio de un bonus permanente de +20% de monedas por cada renacimiento. El primero cuesta 2.000 monedas, el segundo 4.000, y así. El ranking no se reinicia.
 - Cada día podés reclamar una **recompensa diaria** (botón *Regalo* debajo de la tienda). Con la racha de días seguidos el premio sube de 50 a 350 monedas en el día 7, y después vuelve a empezar. Si te salteás un día, la racha se reinicia. El día cambia a las 00:00 UTC (21:00 en Argentina).
-- Hay 10 **logros** (botón *Logros* debajo de Regalo) con premio en monedas: juntar monedas, cazar gigantes, comprar mejoras, renacer, mantener la racha diaria… El panel muestra el progreso de cada uno y un aviso salta al desbloquearlos.
+- Hay 12 **logros** (botón *Logros* debajo de Regalo) con premio en monedas: juntar monedas, cazar gigantes, comprar mejoras, renacer, mantener la racha diaria… El panel muestra el progreso de cada uno y un aviso salta al desbloquearlos.
 - Suena **música de fondo** (5 temas alegres en orden al azar). El botón *Música* arriba de la tienda la silencia solo para vos.
+- Con el botón *Mascotas* (borde derecho) abrís huevos de 500 monedas y conseguís mascotas de 5 rarezas (Común a Legendaria). Podés llevar hasta 3 equipadas: te siguen por el mapa y suman un bonus de monedas (de +5% a +60% cada una).
 - En el fondo del mapa hay un **ranking global** con los 10 jugadores que más monedas recolectaron en total.
 
 ## Contenido
@@ -33,6 +34,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, las hace girar, suma los puntos y atrae monedas con el imán |
 | `src/ServerScriptService/Mapa.server.lua` | Genera el mapa: césped, cerco, árboles, flores y cartel de bienvenida |
 | `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
+| `src/ServerScriptService/Mascotas.server.lua` | Huevos, equipar mascotas y modelos que siguen al jugador |
 | `src/ServerScriptService/Logros.server.lua` | Detecta los logros cumplidos, paga el premio y avisa |
 | `src/ServerScriptService/Recompensa.server.lua` | Valida y paga la recompensa diaria con racha |
 | `src/ServerScriptService/Renacer.server.lua` | Valida y hace el reinicio de Renacer (prestigio) |
@@ -43,9 +45,11 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ReplicatedStorage/ConfigRenacer.lua` | Costo y bonus de Renacer |
 | `src/ReplicatedStorage/ConfigRecompensa.lua` | Premio base, largo del ciclo y fórmulas de la recompensa diaria |
 | `src/ReplicatedStorage/ConfigLogros.lua` | Lista de logros (agregar uno = agregar una fila) |
+| `src/ReplicatedStorage/ConfigMascotas.lua` | Lista de mascotas, rarezas, chances y costo del huevo |
 | `src/StarterPlayerScripts/MarcadorMonedas.client.lua` | Marcador de monedas en pantalla |
 | `src/StarterPlayerScripts/Anuncio.client.lua` | Cartel del evento activo con cuenta regresiva |
 | `src/StarterPlayerScripts/MusicaFondo.client.lua` | Música de fondo con lista de temas y botón para silenciar |
+| `src/StarterPlayerScripts/Mascotas.client.lua` | Botón Mascotas, panel de colección y huevos |
 | `src/StarterPlayerScripts/Logros.client.lua` | Botón Logros, panel de progreso y aviso al desbloquear |
 | `src/StarterPlayerScripts/Recompensa.client.lua` | Botón Regalo y panel de la recompensa diaria |
 | `src/StarterPlayerScripts/SaltoExtra.client.lua` | Saltos extra en el aire (mejora "Salto extra") |
@@ -96,6 +100,8 @@ El guardado usa DataStore, así que en Studio hay que:
 ## Ideas para seguir
 
 - [ ] Publicar el juego para que lo prueben otras personas
+- [ ] Ajustar la interfaz para celular (hay muchos botones y paneles)
+- [ ] Mascotas con mejor aspecto (modelos del Toolbox)
 
 
 ## Autor

@@ -34,6 +34,8 @@ local function cargar(jugador)
 	local total = leaderstats:WaitForChild("Total")
 	local renacimientos = leaderstats:WaitForChild("Renacimientos")
 	local logros = jugador:WaitForChild("Logros")
+	local mascotas = jugador:WaitForChild("Mascotas")
+	local mascotasEquipadas = jugador:WaitForChild("MascotasEquipadas")
 	local mejoras = jugador:WaitForChild("Mejoras")
 
 	local ok, guardado = conReintentos(function()
@@ -57,6 +59,19 @@ local function cargar(jugador)
 	jugador:SetAttribute("UltimoDia", guardado.UltimoDia or 0)
 	jugador:SetAttribute("Racha", guardado.Racha or 0)
 	jugador:SetAttribute("Gigantes", guardado.Gigantes or 0)
+	-- Primero las que tiene y despues las equipadas, para que el modelo se arme una sola vez
+	for id in guardado.Mascotas or {} do
+		local marca = Instance.new("BoolValue")
+		marca.Name = id
+		marca.Value = true
+		marca.Parent = mascotas
+	end
+	for id in guardado.MascotasEquipadas or {} do
+		local marca = Instance.new("BoolValue")
+		marca.Name = id
+		marca.Value = true
+		marca.Parent = mascotasEquipadas
+	end
 	for id in guardado.Logros or {} do
 		local desbloqueado = Instance.new("BoolValue")
 		desbloqueado.Name = id
@@ -90,8 +105,18 @@ local function guardar(jugador)
 		Racha = jugador:GetAttribute("Racha") or 0,
 		Gigantes = jugador:GetAttribute("Gigantes") or 0,
 		Logros = {},
+		Mascotas = {},
+		MascotasEquipadas = {},
 		Mejoras = {},
 	}
+	for nombre, carpeta in { Mascotas = "Mascotas", MascotasEquipadas = "MascotasEquipadas" } do
+		local origen = jugador:FindFirstChild(carpeta)
+		if origen then
+			for _, marca in origen:GetChildren() do
+				datos[nombre][marca.Name] = true
+			end
+		end
+	end
 	local logros = jugador:FindFirstChild("Logros")
 	if logros then
 		for _, desbloqueado in logros:GetChildren() do
