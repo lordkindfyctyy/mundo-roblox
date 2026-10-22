@@ -76,6 +76,10 @@ El guardado usa DataStore, así que en Studio hay que:
 
 ## Ideas para seguir
 
+- [ ] Monedas especiales o eventos (lluvia de monedas, moneda gigante)
+- [ ] Más mejoras en la tienda
+- [ ] Publicar el juego para que lo prueben otras personas
+
 
 ## Autor
 
