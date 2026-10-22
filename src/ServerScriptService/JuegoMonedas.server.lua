@@ -98,7 +98,10 @@ local function crearMoneda()
 		end
 
 		recogida = true
-		jugador.leaderstats.Monedas.Value += tipo.valor
+		-- Cada nivel de "Monedas extra" suma 1 punto por moneda
+		local mejoras = jugador:FindFirstChild("Mejoras")
+		local extra = mejoras and mejoras.Multiplicador.Value or 0
+		jugador.leaderstats.Monedas.Value += tipo.valor + extra
 		animarRecogida(moneda)
 
 		-- Aparece otra moneda despues de unos segundos

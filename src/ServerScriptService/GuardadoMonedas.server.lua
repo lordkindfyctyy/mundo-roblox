@@ -29,6 +29,7 @@ end
 
 local function cargar(jugador)
 	local monedas = jugador:WaitForChild("leaderstats"):WaitForChild("Monedas")
+	local mejoras = jugador:WaitForChild("Mejoras")
 
 	local ok, guardado = conReintentos(function()
 		return ALMACEN:GetAsync(tostring(jugador.UserId))
@@ -38,7 +39,16 @@ local function cargar(jugador)
 		return
 	end
 
-	monedas.Value = guardado or 0
+	-- Los datos viejos eran solo un numero (las monedas); los nuevos son una tabla
+	if type(guardado) == "number" then
+		guardado = { Monedas = guardado }
+	end
+	guardado = guardado or {}
+
+	monedas.Value = guardado.Monedas or 0
+	for _, nivel in mejoras:GetChildren() do
+		nivel.Value = (guardado.Mejoras and guardado.Mejoras[nivel.Name]) or 0
+	end
 	cargados[jugador] = true
 end
 
@@ -49,13 +59,18 @@ local function guardar(jugador)
 
 	local leaderstats = jugador:FindFirstChild("leaderstats")
 	local monedas = leaderstats and leaderstats:FindFirstChild("Monedas")
-	if not monedas then
+	local mejoras = jugador:FindFirstChild("Mejoras")
+	if not monedas or not mejoras then
 		return
 	end
 
-	local valor = monedas.Value
+	local datos = { Monedas = monedas.Value, Mejoras = {} }
+	for _, nivel in mejoras:GetChildren() do
+		datos.Mejoras[nivel.Name] = nivel.Value
+	end
+
 	conReintentos(function()
-		ALMACEN:SetAsync(tostring(jugador.UserId), valor)
+		ALMACEN:SetAsync(tostring(jugador.UserId), datos)
 	end)
 end
 
