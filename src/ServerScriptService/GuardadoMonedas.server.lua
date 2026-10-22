@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 local DataStoreService = game:GetService("DataStoreService")
 
 local ALMACEN = DataStoreService:GetDataStore("MundoRoblox_Monedas_v1")
+local RANKING = DataStoreService:GetOrderedDataStore("MundoRoblox_Ranking_v1") -- lo lee Ranking.server.lua
 local INTENTOS = 3
 local AUTOGUARDADO = 60 -- segundos
 
@@ -28,7 +29,9 @@ local function conReintentos(funcion)
 end
 
 local function cargar(jugador)
-	local monedas = jugador:WaitForChild("leaderstats"):WaitForChild("Monedas")
+	local leaderstats = jugador:WaitForChild("leaderstats")
+	local monedas = leaderstats:WaitForChild("Monedas")
+	local total = leaderstats:WaitForChild("Total")
 	local mejoras = jugador:WaitForChild("Mejoras")
 
 	local ok, guardado = conReintentos(function()
@@ -46,6 +49,8 @@ local function cargar(jugador)
 	guardado = guardado or {}
 
 	monedas.Value = guardado.Monedas or 0
+	-- Quien jugaba antes del ranking no tiene Total: arranca con las monedas que ya tenia
+	total.Value = guardado.Total or monedas.Value
 	for _, nivel in mejoras:GetChildren() do
 		nivel.Value = (guardado.Mejoras and guardado.Mejoras[nivel.Name]) or 0
 	end
@@ -64,13 +69,16 @@ local function guardar(jugador)
 		return
 	end
 
-	local datos = { Monedas = monedas.Value, Mejoras = {} }
+	local datos = { Monedas = monedas.Value, Total = leaderstats.Total.Value, Mejoras = {} }
 	for _, nivel in mejoras:GetChildren() do
 		datos.Mejoras[nivel.Name] = nivel.Value
 	end
 
 	conReintentos(function()
 		ALMACEN:SetAsync(tostring(jugador.UserId), datos)
+	end)
+	conReintentos(function()
+		RANKING:SetAsync(tostring(jugador.UserId), datos.Total)
 	end)
 end
 

@@ -16,6 +16,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | Imán | +8 studs de radio para atraer monedas | 5 | 40, 80, 120… |
 
 - Las monedas y las mejoras se **guardan** (DataStore) y siguen ahí cuando volvés a entrar.
+- En el fondo del mapa hay un **ranking global** con los 10 jugadores que más monedas recolectaron en total.
 
 ## Contenido
 
@@ -23,6 +24,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 |---|---|
 | `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, las hace girar, suma los puntos y atrae monedas con el imán |
 | `src/ServerScriptService/Mapa.server.lua` | Genera el mapa: césped, cerco, árboles, flores y cartel de bienvenida |
+| `src/ServerScriptService/Ranking.server.lua` | Cartel con el ranking global (top 10 de monedas recolectadas en total) |
 | `src/ServerScriptService/TiendaMejoras.server.lua` | Valida las compras y aplica velocidad y salto |
 | `src/ServerScriptService/GuardadoMonedas.server.lua` | Guarda y carga monedas y mejoras |
 | `src/ReplicatedStorage/ConfigMejoras.lua` | Lista de mejoras (agregar una = agregar una fila) |
@@ -74,7 +76,6 @@ El guardado usa DataStore, así que en Studio hay que:
 ## Ideas para seguir
 
 - [ ] Sonido al recoger monedas (completar `SONIDO_ID` en `JuegoMonedas.server.lua`)
-- [ ] Ranking de los jugadores con más monedas
 
 ## Autor
 

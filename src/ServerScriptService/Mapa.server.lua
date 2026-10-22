@@ -160,8 +160,17 @@ crearCesped()
 crearCerco()
 crearCartel()
 
+-- Deja libre la zona del fondo donde Ranking.server.lua pone su cartel
+local function ocupaCartelRanking(posicion)
+	return math.abs(posicion.X) < 20 and posicion.Z > 38
+end
+
 for _ = 1, CANTIDAD_ARBOLES do
-	crearArbol(posicionEnBorde())
+	local posicion = posicionEnBorde()
+	while ocupaCartelRanking(posicion) do
+		posicion = posicionEnBorde()
+	end
+	crearArbol(posicion)
 end
 
 for _ = 1, CANTIDAD_FLORES do

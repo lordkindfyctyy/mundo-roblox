@@ -51,6 +51,12 @@ local function crearLeaderstats(jugador)
 	monedas.Name = "Monedas"
 	monedas.Value = 0
 	monedas.Parent = leaderstats
+
+	-- Total recolectado de toda la vida: no baja al gastar en la tienda. Lo usa el ranking.
+	local total = Instance.new("IntValue")
+	total.Name = "Total"
+	total.Value = 0
+	total.Parent = leaderstats
 end
 
 -- Animacion al recoger: la moneda sube y se desvanece
@@ -83,7 +89,9 @@ local function recoger(moneda, jugador)
 	-- Cada nivel de "Monedas extra" suma 1 punto por moneda
 	local mejoras = jugador:FindFirstChild("Mejoras")
 	local extra = mejoras and mejoras.Multiplicador.Value or 0
-	jugador.leaderstats.Monedas.Value += moneda:GetAttribute("Valor") + extra
+	local ganado = moneda:GetAttribute("Valor") + extra
+	jugador.leaderstats.Monedas.Value += ganado
+	jugador.leaderstats.Total.Value += ganado
 	animarRecogida(moneda)
 
 	-- Aparece otra moneda despues de unos segundos
