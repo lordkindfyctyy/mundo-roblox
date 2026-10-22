@@ -3,6 +3,7 @@
 -- Hay monedas doradas (1 punto) y azules, mas raras (5 puntos).
 -- Con la mejora "Iman" las monedas cercanas viajan hacia el jugador.
 
+local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -16,11 +17,24 @@ local TIEMPO_RESPAWN = 5
 local AREA = 80 -- las monedas aparecen dentro de un cuadrado de AREA x AREA
 local VELOCIDAD_GIRO = math.rad(120) -- grados por segundo
 local DISTANCIA_RECOGER = 3 -- una moneda atraida por el iman se recoge a esta distancia
-local SONIDO_ID = "" -- opcional: pegá un "rbxassetid://..." para tener sonido al recoger
+local VOLUMEN_SONIDO = 0.6
 
+-- sonido: ID de un efecto publico de Roblox. Si no suena, probá con otro ID del Toolbox.
 local TIPOS = {
-	{ nombre = "Dorada", valor = 1, color = Color3.fromRGB(255, 205, 0), probabilidad = 0.85 },
-	{ nombre = "Azul", valor = 5, color = Color3.fromRGB(0, 170, 255), probabilidad = 0.15 },
+	{
+		nombre = "Dorada",
+		valor = 1,
+		color = Color3.fromRGB(255, 205, 0),
+		probabilidad = 0.85,
+		sonido = "rbxassetid://4612374807",
+	},
+	{
+		nombre = "Azul",
+		valor = 5,
+		color = Color3.fromRGB(0, 170, 255),
+		probabilidad = 0.15,
+		sonido = "rbxassetid://4612375051",
+	},
 }
 
 local carpeta = Instance.new("Folder")
@@ -60,12 +74,16 @@ local function crearLeaderstats(jugador)
 end
 
 -- Animacion al recoger: la moneda sube y se desvanece
-local function animarRecogida(moneda)
-	if SONIDO_ID ~= "" then
+local function animarRecogida(moneda, jugador)
+	-- El sonido va en el jugador, no en la moneda: la moneda se destruye enseguida y cortaria el sonido
+	local raiz = jugador.Character and jugador.Character:FindFirstChild("HumanoidRootPart")
+	if raiz then
 		local sonido = Instance.new("Sound")
-		sonido.SoundId = SONIDO_ID
-		sonido.Parent = moneda
+		sonido.SoundId = moneda:GetAttribute("Sonido")
+		sonido.Volume = VOLUMEN_SONIDO
+		sonido.Parent = raiz
 		sonido:Play()
+		Debris:AddItem(sonido, 3)
 	end
 
 	local info = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -92,7 +110,7 @@ local function recoger(moneda, jugador)
 	local ganado = moneda:GetAttribute("Valor") + extra
 	jugador.leaderstats.Monedas.Value += ganado
 	jugador.leaderstats.Total.Value += ganado
-	animarRecogida(moneda)
+	animarRecogida(moneda, jugador)
 
 	-- Aparece otra moneda despues de unos segundos
 	task.delay(TIEMPO_RESPAWN, crearMoneda)
@@ -111,6 +129,7 @@ crearMoneda = function()
 	moneda.Anchored = true
 	moneda.CanCollide = false
 	moneda:SetAttribute("Valor", tipo.valor)
+	moneda:SetAttribute("Sonido", tipo.sonido)
 	moneda:SetAttribute("Recogida", false)
 	moneda:SetAttribute("Angulo", math.random() * math.pi * 2)
 	moneda.Position = Vector3.new(

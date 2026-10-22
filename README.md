@@ -5,6 +5,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 ## Cómo se juega
 
 - Aparecen 20 monedas girando por el mapa. Las **doradas** valen 1 punto y las **azules** (más raras) valen 5.
+- Cada moneda suena al recogerla (un sonido distinto para la dorada y la azul).
 - Tu puntaje se ve en el marcador de arriba y en la tabla de jugadores.
 - Con el botón **Tienda** (al medio del borde izquierdo) comprás mejoras con las monedas:
 
@@ -75,7 +76,6 @@ El guardado usa DataStore, así que en Studio hay que:
 
 ## Ideas para seguir
 
-- [ ] Sonido al recoger monedas (completar `SONIDO_ID` en `JuegoMonedas.server.lua`)
 
 ## Autor
 
