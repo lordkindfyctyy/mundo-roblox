@@ -33,6 +33,7 @@ local function cargar(jugador)
 	local monedas = leaderstats:WaitForChild("Monedas")
 	local total = leaderstats:WaitForChild("Total")
 	local renacimientos = leaderstats:WaitForChild("Renacimientos")
+	local logros = jugador:WaitForChild("Logros")
 	local mejoras = jugador:WaitForChild("Mejoras")
 
 	local ok, guardado = conReintentos(function()
@@ -55,6 +56,13 @@ local function cargar(jugador)
 	renacimientos.Value = guardado.Renacimientos or 0
 	jugador:SetAttribute("UltimoDia", guardado.UltimoDia or 0)
 	jugador:SetAttribute("Racha", guardado.Racha or 0)
+	jugador:SetAttribute("Gigantes", guardado.Gigantes or 0)
+	for id in guardado.Logros or {} do
+		local desbloqueado = Instance.new("BoolValue")
+		desbloqueado.Name = id
+		desbloqueado.Value = true
+		desbloqueado.Parent = logros
+	end
 	for _, nivel in mejoras:GetChildren() do
 		nivel.Value = (guardado.Mejoras and guardado.Mejoras[nivel.Name]) or 0
 	end
@@ -80,8 +88,16 @@ local function guardar(jugador)
 		Renacimientos = leaderstats.Renacimientos.Value,
 		UltimoDia = jugador:GetAttribute("UltimoDia") or 0,
 		Racha = jugador:GetAttribute("Racha") or 0,
+		Gigantes = jugador:GetAttribute("Gigantes") or 0,
+		Logros = {},
 		Mejoras = {},
 	}
+	local logros = jugador:FindFirstChild("Logros")
+	if logros then
+		for _, desbloqueado in logros:GetChildren() do
+			datos.Logros[desbloqueado.Name] = true
+		end
+	end
 	for _, nivel in mejoras:GetChildren() do
 		datos.Mejoras[nivel.Name] = nivel.Value
 	end

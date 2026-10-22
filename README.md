@@ -22,6 +22,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 - Las monedas y las mejoras se **guardan** (DataStore) y siguen ahí cuando volvés a entrar.
 - Con suficientes monedas podés **Renacer** (fila violeta al pie de la tienda): reinicia tus monedas y mejoras a cambio de un bonus permanente de +20% de monedas por cada renacimiento. El primero cuesta 2.000 monedas, el segundo 4.000, y así. El ranking no se reinicia.
 - Cada día podés reclamar una **recompensa diaria** (botón *Regalo* debajo de la tienda). Con la racha de días seguidos el premio sube de 50 a 350 monedas en el día 7, y después vuelve a empezar. Si te salteás un día, la racha se reinicia. El día cambia a las 00:00 UTC (21:00 en Argentina).
+- Hay 10 **logros** (botón *Logros* debajo de Regalo) con premio en monedas: juntar monedas, cazar gigantes, comprar mejoras, renacer, mantener la racha diaria… El panel muestra el progreso de cada uno y un aviso salta al desbloquearlos.
 - En el fondo del mapa hay un **ranking global** con los 10 jugadores que más monedas recolectaron en total.
 
 ## Contenido
@@ -31,6 +32,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, las hace girar, suma los puntos y atrae monedas con el imán |
 | `src/ServerScriptService/Mapa.server.lua` | Genera el mapa: césped, cerco, árboles, flores y cartel de bienvenida |
 | `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
+| `src/ServerScriptService/Logros.server.lua` | Detecta los logros cumplidos, paga el premio y avisa |
 | `src/ServerScriptService/Recompensa.server.lua` | Valida y paga la recompensa diaria con racha |
 | `src/ServerScriptService/Renacer.server.lua` | Valida y hace el reinicio de Renacer (prestigio) |
 | `src/ServerScriptService/Ranking.server.lua` | Cartel con el ranking global (top 10 de monedas recolectadas en total) |
@@ -39,8 +41,10 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ReplicatedStorage/ConfigMejoras.lua` | Lista de mejoras (agregar una = agregar una fila) |
 | `src/ReplicatedStorage/ConfigRenacer.lua` | Costo y bonus de Renacer |
 | `src/ReplicatedStorage/ConfigRecompensa.lua` | Premio base, largo del ciclo y fórmulas de la recompensa diaria |
+| `src/ReplicatedStorage/ConfigLogros.lua` | Lista de logros (agregar uno = agregar una fila) |
 | `src/StarterPlayerScripts/MarcadorMonedas.client.lua` | Marcador de monedas en pantalla |
 | `src/StarterPlayerScripts/Anuncio.client.lua` | Cartel del evento activo con cuenta regresiva |
+| `src/StarterPlayerScripts/Logros.client.lua` | Botón Logros, panel de progreso y aviso al desbloquear |
 | `src/StarterPlayerScripts/Recompensa.client.lua` | Botón Regalo y panel de la recompensa diaria |
 | `src/StarterPlayerScripts/SaltoExtra.client.lua` | Saltos extra en el aire (mejora "Salto extra") |
 | `src/StarterPlayerScripts/Tienda.client.lua` | Interfaz de la tienda (con scroll) |

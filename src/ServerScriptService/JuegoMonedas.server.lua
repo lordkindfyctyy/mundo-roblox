@@ -142,6 +142,11 @@ local function recoger(moneda, jugador)
 	jugador.leaderstats.Total.Value += ganado
 	animarRecogida(moneda, jugador)
 
+	-- Cuenta las gigantes que recogio (lo usan los logros)
+	if moneda.Name == "MonedaGigante" then
+		jugador:SetAttribute("Gigantes", (jugador:GetAttribute("Gigantes") or 0) + 1)
+	end
+
 	-- Aparece otra moneda despues de unos segundos (las de la lluvia no se reponen)
 	if not moneda:GetAttribute("Temporal") then
 		task.delay(TIEMPO_RESPAWN, crearMoneda)
