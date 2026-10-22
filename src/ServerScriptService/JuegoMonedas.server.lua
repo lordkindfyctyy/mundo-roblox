@@ -1,16 +1,21 @@
 -- Juego de ejemplo: "Recolector de Monedas"
 -- Cada jugador tiene un puntaje (leaderstats) y suma puntos al tocar monedas.
 -- Hay monedas doradas (1 punto) y azules, mas raras (5 puntos).
+-- Con la mejora "Iman" las monedas cercanas viajan hacia el jugador.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+
+local ConfigMejoras = require(ReplicatedStorage:WaitForChild("ConfigMejoras"))
 
 local CANTIDAD_MONEDAS = 20
 local TIEMPO_RESPAWN = 5
 local AREA = 80 -- las monedas aparecen dentro de un cuadrado de AREA x AREA
 local VELOCIDAD_GIRO = math.rad(120) -- grados por segundo
+local DISTANCIA_RECOGER = 3 -- una moneda atraida por el iman se recoge a esta distancia
 local SONIDO_ID = "" -- opcional: pegá un "rbxassetid://..." para tener sonido al recoger
 
 local TIPOS = {
@@ -21,6 +26,8 @@ local TIPOS = {
 local carpeta = Instance.new("Folder")
 carpeta.Name = "Monedas"
 carpeta.Parent = Workspace
+
+local crearMoneda -- se define mas abajo; recoger() la necesita para el respawn
 
 local function elegirTipo()
 	local azar = math.random()
@@ -66,8 +73,25 @@ local function animarRecogida(moneda)
 	end)
 end
 
+-- Un jugador recoge una moneda (por tocarla o por el iman)
+local function recoger(moneda, jugador)
+	if moneda:GetAttribute("Recogida") then
+		return
+	end
+	moneda:SetAttribute("Recogida", true)
+
+	-- Cada nivel de "Monedas extra" suma 1 punto por moneda
+	local mejoras = jugador:FindFirstChild("Mejoras")
+	local extra = mejoras and mejoras.Multiplicador.Value or 0
+	jugador.leaderstats.Monedas.Value += moneda:GetAttribute("Valor") + extra
+	animarRecogida(moneda)
+
+	-- Aparece otra moneda despues de unos segundos
+	task.delay(TIEMPO_RESPAWN, crearMoneda)
+end
+
 -- Crea una moneda en una posicion al azar
-local function crearMoneda()
+crearMoneda = function()
 	local tipo = elegirTipo()
 
 	local moneda = Instance.new("Part")
@@ -78,6 +102,8 @@ local function crearMoneda()
 	moneda.Material = Enum.Material.Neon
 	moneda.Anchored = true
 	moneda.CanCollide = false
+	moneda:SetAttribute("Valor", tipo.valor)
+	moneda:SetAttribute("Recogida", false)
 	moneda:SetAttribute("Angulo", math.random() * math.pi * 2)
 	moneda.Position = Vector3.new(
 		math.random(-AREA / 2, AREA / 2),
@@ -86,37 +112,51 @@ local function crearMoneda()
 	)
 	moneda.Parent = carpeta
 
-	local recogida = false
 	moneda.Touched:Connect(function(otraParte)
-		if recogida then
-			return
-		end
-
 		local jugador = Players:GetPlayerFromCharacter(otraParte.Parent)
-		if not jugador then
-			return
+		if jugador then
+			recoger(moneda, jugador)
 		end
-
-		recogida = true
-		-- Cada nivel de "Monedas extra" suma 1 punto por moneda
-		local mejoras = jugador:FindFirstChild("Mejoras")
-		local extra = mejoras and mejoras.Multiplicador.Value or 0
-		jugador.leaderstats.Monedas.Value += tipo.valor + extra
-		animarRecogida(moneda)
-
-		-- Aparece otra moneda despues de unos segundos
-		task.delay(TIEMPO_RESPAWN, crearMoneda)
 	end)
 end
 
--- Hace girar todas las monedas
+-- Devuelve el jugador con iman que tiene la moneda dentro de su radio, y su posicion
+local function buscarImanCercano(posicion)
+	for _, jugador in Players:GetPlayers() do
+		local mejoras = jugador:FindFirstChild("Mejoras")
+		local raiz = jugador.Character and jugador.Character:FindFirstChild("HumanoidRootPart")
+		if mejoras and raiz then
+			local radio = mejoras.Iman.Value * ConfigMejoras.IMAN_RADIO_POR_NIVEL
+			if radio > 0 and (raiz.Position - posicion).Magnitude <= radio then
+				return jugador, raiz.Position
+			end
+		end
+	end
+	return nil
+end
+
+-- Hace girar todas las monedas y mueve hacia el jugador las que estan en rango del iman
 RunService.Heartbeat:Connect(function(dt)
 	for _, moneda in carpeta:GetChildren() do
 		local angulo = moneda:GetAttribute("Angulo")
-		if angulo and moneda.Transparency == 0 then
+		if angulo and not moneda:GetAttribute("Recogida") then
 			angulo += VELOCIDAD_GIRO * dt
 			moneda:SetAttribute("Angulo", angulo)
-			moneda.CFrame = CFrame.new(moneda.Position) * CFrame.Angles(0, angulo, 0)
+
+			local posicion = moneda.Position
+			local jugador, objetivo = buscarImanCercano(posicion)
+			if jugador then
+				local distancia = (objetivo - posicion).Magnitude
+				if distancia <= DISTANCIA_RECOGER then
+					recoger(moneda, jugador)
+				else
+					posicion += (objetivo - posicion).Unit * math.min(ConfigMejoras.IMAN_VELOCIDAD * dt, distancia)
+				end
+			end
+
+			if not moneda:GetAttribute("Recogida") then
+				moneda.CFrame = CFrame.new(posicion) * CFrame.Angles(0, angulo, 0)
+			end
 		end
 	end
 end)

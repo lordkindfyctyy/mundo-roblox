@@ -38,7 +38,7 @@ redondear(botonAbrir, 10)
 local ventana = Instance.new("Frame")
 ventana.AnchorPoint = Vector2.new(0.5, 0.5)
 ventana.Position = UDim2.fromScale(0.5, 0.5)
-ventana.Size = UDim2.fromOffset(420, 330)
+ventana.Size = UDim2.fromOffset(420, 65 + #ConfigMejoras.Lista * 80 + 30)
 ventana.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 ventana.Visible = false
 ventana.Parent = pantalla

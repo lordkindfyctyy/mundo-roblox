@@ -25,8 +25,17 @@ ConfigMejoras.Lista = {
 		costoBase = 50,
 		nivelMaximo = 3,
 	},
+	{
+		id = "Iman",
+		nombre = "Imán",
+		descripcion = "+8 de radio para atraer monedas",
+		costoBase = 40,
+		nivelMaximo = 5,
+	},
 }
 
+ConfigMejoras.IMAN_RADIO_POR_NIVEL = 8 -- studs
+ConfigMejoras.IMAN_VELOCIDAD = 30 -- studs por segundo con que viaja la moneda
 ConfigMejoras.VELOCIDAD_BASE = 16
 ConfigMejoras.VELOCIDAD_POR_NIVEL = 2
 ConfigMejoras.SALTO_BASE = 50
