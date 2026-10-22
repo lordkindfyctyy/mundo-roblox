@@ -32,6 +32,7 @@ local function cargar(jugador)
 	local leaderstats = jugador:WaitForChild("leaderstats")
 	local monedas = leaderstats:WaitForChild("Monedas")
 	local total = leaderstats:WaitForChild("Total")
+	local renacimientos = leaderstats:WaitForChild("Renacimientos")
 	local mejoras = jugador:WaitForChild("Mejoras")
 
 	local ok, guardado = conReintentos(function()
@@ -51,6 +52,7 @@ local function cargar(jugador)
 	monedas.Value = guardado.Monedas or 0
 	-- Quien jugaba antes del ranking no tiene Total: arranca con las monedas que ya tenia
 	total.Value = guardado.Total or monedas.Value
+	renacimientos.Value = guardado.Renacimientos or 0
 	for _, nivel in mejoras:GetChildren() do
 		nivel.Value = (guardado.Mejoras and guardado.Mejoras[nivel.Name]) or 0
 	end
@@ -69,7 +71,12 @@ local function guardar(jugador)
 		return
 	end
 
-	local datos = { Monedas = monedas.Value, Total = leaderstats.Total.Value, Mejoras = {} }
+	local datos = {
+		Monedas = monedas.Value,
+		Total = leaderstats.Total.Value,
+		Renacimientos = leaderstats.Renacimientos.Value,
+		Mejoras = {},
+	}
 	for _, nivel in mejoras:GetChildren() do
 		datos.Mejoras[nivel.Name] = nivel.Value
 	end

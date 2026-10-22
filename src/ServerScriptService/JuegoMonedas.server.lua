@@ -13,6 +13,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local ConfigMejoras = require(ReplicatedStorage:WaitForChild("ConfigMejoras"))
+local ConfigRenacer = require(ReplicatedStorage:WaitForChild("ConfigRenacer"))
 
 local CANTIDAD_MONEDAS = 20
 local TIEMPO_RESPAWN = 5
@@ -82,6 +83,12 @@ local function crearLeaderstats(jugador)
 	total.Name = "Total"
 	total.Value = 0
 	total.Parent = leaderstats
+
+	-- Cuantas veces renacio: cada uno da un bonus permanente de monedas (ver ConfigRenacer)
+	local renacimientos = Instance.new("IntValue")
+	renacimientos.Name = "Renacimientos"
+	renacimientos.Value = 0
+	renacimientos.Parent = leaderstats
 end
 
 -- Animacion al recoger: la moneda sube y se desvanece
@@ -127,6 +134,10 @@ local function recoger(moneda, jugador)
 	if math.random() < nivelSuerte * ConfigMejoras.SUERTE_POR_NIVEL then
 		ganado *= 2
 	end
+
+	-- Bonus permanente por renacer; redondeamos porque los puntajes son enteros
+	local bonusRenacer = ConfigRenacer.multiplicador(jugador.leaderstats.Renacimientos.Value)
+	ganado = math.max(1, math.floor(ganado * bonusRenacer + 0.5))
 	jugador.leaderstats.Monedas.Value += ganado
 	jugador.leaderstats.Total.Value += ganado
 	animarRecogida(moneda, jugador)
