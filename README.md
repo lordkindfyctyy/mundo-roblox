@@ -22,6 +22,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | Archivo | Qué hace |
 |---|---|
 | `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, las hace girar, suma los puntos y atrae monedas con el imán |
+| `src/ServerScriptService/Mapa.server.lua` | Genera el mapa: césped, cerco, árboles, flores y cartel de bienvenida |
 | `src/ServerScriptService/TiendaMejoras.server.lua` | Valida las compras y aplica velocidad y salto |
 | `src/ServerScriptService/GuardadoMonedas.server.lua` | Guarda y carga monedas y mejoras |
 | `src/ReplicatedStorage/ConfigMejoras.lua` | Lista de mejoras (agregar una = agregar una fila) |
@@ -73,7 +74,6 @@ El guardado usa DataStore, así que en Studio hay que:
 ## Ideas para seguir
 
 - [ ] Sonido al recoger monedas (completar `SONIDO_ID` en `JuegoMonedas.server.lua`)
-- [ ] Un mapa con decoración en vez del Baseplate
 - [ ] Ranking de los jugadores con más monedas
 
 ## Autor
