@@ -1,0 +1,11 @@
+# Archivos de Roblox generados
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+*.rbxl.lock
+
+# Rojo / herramientas
+sourcemap.json
+Packages/
+ServerPackages/
