@@ -30,6 +30,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 - Frente al parque hay **negocios** con cartel (heladería, pizzería, kiosco, farmacia, panadería, librería y verdulería) y **Lo De Lalo Pet Shop**, al oeste: se puede entrar y en el mostrador comprar alimento para las mascotas. Mientras dura, el bonus de monedas de las mascotas equipadas se multiplica (Snack x1,5 por 1 min, Balanceado x2 por 2 min, Premium x3 por 3 min) y un cartel abajo muestra cuánto falta.
 - En la esquina noreste de la ciudad está la **Torre** (100 de alto): se sube saltando por plataformas de colores que dan vueltas alrededor. Arriba hay un **cofre con 300 monedas** (una vez cada 10 minutos por jugador) y una plataforma azul para bajar de un toque.
 - En la **avenida norte** (saliendo del parque por el lado del ranking) hay **6 autos para manejar**, azules y blancos: "Manejar" para ir al volante y "Subir" de acompañante. Se maneja con W/S y A/D (o el joystick en el celular) y se baja saltando. Si un auto queda solo lejos de su lugar, a los 45 segundos vuelve al estacionamiento.
+- **Carreras contra reloj:** con un auto, pasá por el arco de LARGADA de la avenida norte (yendo hacia afuera), recorré los 8 arcos numerados por la calle de afuera de la ciudad y volvé a la largada. Premio: 100 monedas por llegar (en menos de 2 minutos) y 200 más si mejorás tu récord. Al lado de la largada hay un cartel con los 5 mejores tiempos. Si te bajás del auto se cancela.
 - Siempre hay una **misión** activa (tarjeta arriba a la derecha): entregas entre negocios, la Torre y el parque (a pie o en auto), juntar monedas en la calle, subir a la Torre, manejar o comprar alimento en el pet shop. Una columna de luz amarilla marca a dónde ir y la tarjeta dice a cuántos metros. Al cumplirla se cobra el premio y llega otra; con *Cambiar* se pide una distinta.
 - Hay **día y noche**: un día dura 9 minutos (6 de día y 3 de noche). De noche se prenden los faroles y los faros de los autos.
 - En el fondo del mapa hay un **ranking global** con los 10 jugadores que más monedas recolectaron en total.
@@ -52,6 +53,8 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ServerScriptService/Misiones.server.lua` | Da, sigue y paga las misiones de cada jugador |
 | `src/ReplicatedStorage/ConfigMisiones.lua` | Lista de misiones (agregar una = agregar una fila) |
 | `src/StarterPlayerScripts/Misiones.client.lua` | Tarjeta de la misión, botón Cambiar y la columna de luz en el destino |
+| `src/ServerScriptService/Carreras.server.lua` | Circuito con arcos, largada, premios y cartel de mejores tiempos |
+| `src/StarterPlayerScripts/Carreras.client.lua` | Cronómetro y marca del próximo arco durante la carrera |
 | `src/ServerScriptService/Ciudad.server.lua` | Genera la ciudad alrededor del parque: calles, veredas, 12 manzanas con edificios, faroles y sendas peatonales |
 | `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
 | `src/ServerScriptService/Mascotas.server.lua` | Huevos, equipar mascotas y modelos que siguen al jugador |
