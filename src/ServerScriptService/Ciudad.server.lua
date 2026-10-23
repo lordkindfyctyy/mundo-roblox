@@ -10,12 +10,14 @@
 
 local Workspace = game:GetService("Workspace")
 
+-- Donde van las calles (tambien lo usa JuegoMonedas para las monedas de la ciudad)
+local Plano = require(script.Parent:WaitForChild("PlanoCiudad"))
+
 local SEMILLA = 2024
-local LIMITE = 158 -- la ciudad llega hasta +-LIMITE; ahi hay una pared invisible
-local CALLES = { -150, -63, 63, 150 } -- centro de cada calle (iguales en X y en Z)
-local AVENIDA = 0 -- avenida central, solo fuera del parque
-local MEDIO_ANCHO_CALLE = 8 -- las calles miden 16 de ancho
-local BORDE_PARQUE = 55 -- hasta aca llega la vereda del parque
+local LIMITE = Plano.LIMITE
+local CALLES = Plano.CALLES
+local AVENIDA = Plano.AVENIDA
+local MEDIO_ANCHO_CALLE = Plano.MEDIO_ANCHO_CALLE
 local SUELO = 0.3 -- altura del asfalto; el cesped del parque queda apenas arriba (0.4)
 local VEREDA = 0.5 -- altura de las veredas
 local ANCHO_VEREDA = 3

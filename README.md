@@ -4,7 +4,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 
 ## Cómo se juega
 
-- Aparecen 20 monedas girando por el mapa. Las **doradas** valen 1 punto, las **azules** (más raras) valen 5 y la **gigante violeta** (muy rara) vale 25.
+- Aparecen 20 monedas girando en el parque y otras 40 sobre las calles de la ciudad. Las **doradas** valen 1 punto, las **azules** (más raras) valen 5 y la **gigante violeta** (muy rara) vale 25.
 - Cada moneda suena al recogerla (un sonido distinto para la dorada y la azul).
 - Cada tanto hay un **evento**: la *Hora dorada* (las monedas valen el doble durante 30 segundos) o la *Lluvia de monedas* (caen 40 monedas extra del cielo). Un cartel arriba avisa cuál está activo.
 - Tu puntaje se ve en el marcador de arriba y en la tabla de jugadores.
@@ -35,6 +35,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 |---|---|
 | `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, las hace girar, suma los puntos y atrae monedas con el imán |
 | `src/ServerScriptService/Mapa.server.lua` | Genera el parque del centro: césped, cerco con 4 entradas, árboles, flores y cartel de bienvenida |
+| `src/ServerScriptService/PlanoCiudad.lua` | Dónde van las calles; lo usan la ciudad y las monedas de la ciudad |
 | `src/ServerScriptService/Ciudad.server.lua` | Genera la ciudad alrededor del parque: calles, veredas, 12 manzanas con edificios, faroles y sendas peatonales |
 | `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
 | `src/ServerScriptService/Mascotas.server.lua` | Huevos, equipar mascotas y modelos que siguen al jugador |

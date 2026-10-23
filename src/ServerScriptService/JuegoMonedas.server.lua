@@ -3,6 +3,7 @@
 -- Hay monedas doradas (1 punto), azules (5) y una gigante muy rara (25).
 -- Con la mejora "Iman" las monedas cercanas viajan hacia el jugador.
 -- Eventos.server.lua puede pedir monedas extra (lluvia) y duplicar los puntos (hora dorada).
+-- Hay monedas en el parque y sobre las calles de la ciudad (PlanoCiudad).
 
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
@@ -15,8 +16,10 @@ local Workspace = game:GetService("Workspace")
 local ConfigMejoras = require(ReplicatedStorage:WaitForChild("ConfigMejoras"))
 local ConfigRenacer = require(ReplicatedStorage:WaitForChild("ConfigRenacer"))
 local ConfigMascotas = require(ReplicatedStorage:WaitForChild("ConfigMascotas"))
+local PlanoCiudad = require(script.Parent:WaitForChild("PlanoCiudad"))
 
-local CANTIDAD_MONEDAS = 20
+local CANTIDAD_MONEDAS = 20 -- en el parque
+local CANTIDAD_MONEDAS_CIUDAD = 40 -- sobre las calles de la ciudad
 local TIEMPO_RESPAWN = 5
 local AREA = 80 -- las monedas aparecen dentro de un cuadrado de AREA x AREA
 local VELOCIDAD_GIRO = math.rad(120) -- grados por segundo
@@ -150,15 +153,17 @@ local function recoger(moneda, jugador)
 		jugador:SetAttribute("Gigantes", (jugador:GetAttribute("Gigantes") or 0) + 1)
 	end
 
-	-- Aparece otra moneda despues de unos segundos (las de la lluvia no se reponen)
+	-- Aparece otra moneda en la misma zona despues de unos segundos (las de la lluvia no se reponen)
 	if not moneda:GetAttribute("Temporal") then
-		task.delay(TIEMPO_RESPAWN, crearMoneda)
+		task.delay(TIEMPO_RESPAWN, crearMoneda, false, moneda:GetAttribute("Zona"))
 	end
 end
 
--- Crea una moneda en una posicion al azar.
+-- Crea una moneda en una posicion al azar del parque, o de las calles si zona es "ciudad".
 -- Si es temporal (lluvia), cae desde el cielo, no se repone y desaparece sola.
-crearMoneda = function(temporal)
+local azarCiudad = Random.new()
+
+crearMoneda = function(temporal, zona)
 	local tipo = elegirTipo()
 	local tamano = tipo.tamano or 3
 
@@ -175,12 +180,16 @@ crearMoneda = function(temporal)
 	moneda:SetAttribute("Recogida", false)
 	moneda:SetAttribute("Temporal", temporal == true)
 	moneda:SetAttribute("Angulo", math.random() * math.pi * 2)
+	moneda:SetAttribute("Zona", zona or "parque")
 
-	local destino = Vector3.new(
-		math.random(-AREA / 2, AREA / 2),
-		1.5 + tamano / 2, -- la moneda queda apoyada a la misma altura sin importar el tamano
-		math.random(-AREA / 2, AREA / 2)
-	)
+	local suelo
+	if zona == "ciudad" then
+		suelo = PlanoCiudad.puntoEnCalle(azarCiudad)
+	else
+		suelo = Vector3.new(math.random(-AREA / 2, AREA / 2), 0, math.random(-AREA / 2, AREA / 2))
+	end
+	-- la moneda queda apoyada a la misma altura sin importar el tamano
+	local destino = suelo + Vector3.new(0, 1.5 + tamano / 2, 0)
 	moneda.Position = temporal and destino + Vector3.new(0, 50, 0) or destino
 	moneda.Parent = carpeta
 
@@ -251,6 +260,9 @@ end
 
 for _ = 1, CANTIDAD_MONEDAS do
 	crearMoneda()
+end
+for _ = 1, CANTIDAD_MONEDAS_CIUDAD do
+	crearMoneda(false, "ciudad")
 end
 
 -- Eventos.server.lua dispara esto para pedir una lluvia de monedas extra
