@@ -29,6 +29,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 - Alrededor del parque hay una **ciudad** para recorrer: calles con líneas pintadas, veredas, edificios de distintas alturas y faroles. Se sale del parque por las entradas del medio de cada lado del cerco. Por las calles andan **autos** por la mano derecha; frenan si tienen a alguien adelante, así que nunca te atropellan, y respetan los **semáforos** de cada cruce (verde 8 s, amarillo 2 s y un segundo todo en rojo antes de darle paso a la otra calle).
 - Frente al parque hay **negocios** con cartel (heladería, pizzería, kiosco, farmacia, panadería, librería y verdulería) y **Lo De Lalo Pet Shop**, al oeste: se puede entrar y en el mostrador comprar alimento para las mascotas. Mientras dura, el bonus de monedas de las mascotas equipadas se multiplica (Snack x1,5 por 1 min, Balanceado x2 por 2 min, Premium x3 por 3 min) y un cartel abajo muestra cuánto falta.
 - En la esquina noreste de la ciudad está la **Torre** (100 de alto): se sube saltando por plataformas de colores que dan vueltas alrededor. Arriba hay un **cofre con 300 monedas** (una vez cada 10 minutos por jugador) y una plataforma azul para bajar de un toque.
+- En la **avenida norte** (saliendo del parque por el lado del ranking) hay **6 autos para manejar**, azules y blancos: "Manejar" para ir al volante y "Subir" de acompañante. Se maneja con W/S y A/D (o el joystick en el celular) y se baja saltando. Si un auto queda solo lejos de su lugar, a los 45 segundos vuelve al estacionamiento.
 - Hay **día y noche**: un día dura 9 minutos (6 de día y 3 de noche). De noche se prenden los faroles y los faros de los autos.
 - En el fondo del mapa hay un **ranking global** con los 10 jugadores que más monedas recolectaron en total.
 
@@ -46,6 +47,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/StarterPlayerScripts/Alimentos.client.lua` | Aviso de cada compra y cuenta regresiva del alimento |
 | `src/ServerScriptService/Torre.lua` | La Torre: plataformas en espiral, cofre con premio y plataforma para bajar |
 | `src/ServerScriptService/DiaNoche.server.lua` | Ciclo de día y noche; prende de noche lo que tiene la etiqueta LuzDeNoche |
+| `src/ServerScriptService/Vehiculos.server.lua` | Autos azules y blancos para manejar: asientos, manejo y vuelta al estacionamiento |
 | `src/ServerScriptService/Ciudad.server.lua` | Genera la ciudad alrededor del parque: calles, veredas, 12 manzanas con edificios, faroles y sendas peatonales |
 | `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
 | `src/ServerScriptService/Mascotas.server.lua` | Huevos, equipar mascotas y modelos que siguen al jugador |
