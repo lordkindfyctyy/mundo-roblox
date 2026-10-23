@@ -14,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 -- Donde van las calles (tambien lo usa JuegoMonedas para las monedas de la ciudad)
 local Plano = require(script.Parent:WaitForChild("PlanoCiudad"))
 local Negocios = require(script.Parent:WaitForChild("Negocios"))
+local Torre = require(script.Parent:WaitForChild("Torre"))
 
 local SEMILLA = 2024
 local LIMITE = Plano.LIMITE
@@ -332,7 +333,14 @@ end
 
 for _, tx in tramos() do
 	for _, tz in tramos() do
-		if not esParque(tx[1], tx[2], tz[1], tz[2]) then
+		if esParque(tx[1], tx[2], tz[1], tz[2]) then
+			continue
+		end
+		-- La manzana de la esquina noreste es la plaza de la Torre (Torre.lua)
+		if tx[1] > Plano.ANILLO and tz[1] > Plano.ANILLO then
+			losa(veredas, "Vereda", tx[1], tx[2], tz[1], tz[2], VEREDA, COLOR_VEREDA, Enum.Material.Concrete)
+			Torre.construir(ciudad, tx[1], tx[2], tz[1], tz[2], VEREDA)
+		else
 			manzana(tx[1], tx[2], tz[1], tz[2])
 		end
 	end
