@@ -1,5 +1,6 @@
 -- Autos que andan por las calles de la ciudad (PlanoCiudad), por la mano derecha.
--- Frenan si tienen un jugador o un auto adelante, asi nunca atropellan a nadie.
+-- Frenan con el semaforo en rojo o amarillo (Semaforos.server.lua) y si tienen
+-- un jugador o un auto adelante, asi nunca atropellan a nadie.
 -- En los cruces, los que van a lo largo de X le dan paso a los que van a lo largo
 -- de Z (si no, dos autos podrian quedarse esperandose para siempre).
 -- Al llegar al borde de la ciudad vuelven a entrar por el otro lado.
@@ -166,7 +167,32 @@ local function hayAlgoAdelante(auto, punto)
 	return Vector3.new(costado.X, 0, costado.Z).Magnitude <= ANCHO_REVISION
 end
 
+-- Semaforo: si la luz de su calle no esta en verde, frena antes de entrar al
+-- proximo cruce. Si ya estaba cruzando, termina de pasar.
+local ZONA_SEMAFORO = 6 -- cuanto antes de la linea de freno empieza a mirar la luz
+
+local function semaforoEnRojo(auto)
+	local luz = Workspace:GetAttribute(Plano.ATRIBUTO_LUZ[auto.carril.enX])
+	if luz == nil or luz == "verde" then
+		return false
+	end
+	local sentido = auto.carril.sentido
+	local donde = auto.carril.enX and auto.posicion.X or auto.posicion.Z
+	for _, cruce in Plano.CALLES do
+		-- Donde queda el centro del auto con la trompa justo antes del cruce
+		local lineaFreno = cruce - sentido * (Plano.MEDIO_ANCHO_CALLE + 1 + LARGO / 2)
+		local falta = (lineaFreno - donde) * sentido
+		if falta >= 0 and falta <= ZONA_SEMAFORO then
+			return true
+		end
+	end
+	return false
+end
+
 local function debeFrenar(auto)
+	if semaforoEnRojo(auto) then
+		return true
+	end
 	for _, jugador in Players:GetPlayers() do
 		local raiz = jugador.Character and jugador.Character:FindFirstChild("HumanoidRootPart")
 		if raiz and hayAlgoAdelante(auto, raiz.Position) then

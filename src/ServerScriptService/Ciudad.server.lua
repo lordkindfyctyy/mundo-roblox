@@ -165,17 +165,14 @@ local function farol(x, z)
 	luz.Parent = lampara
 end
 
--- Faroles a lo largo de la vereda del parque (sin tapar las entradas del medio)
--- y uno en cada esquina
+-- Faroles a lo largo de la vereda del parque (sin tapar las entradas del medio;
+-- en las esquinas estan los semaforos de Semaforos.server.lua)
 for _, n in { -2, -1, 1, 2 } do
 	local pos = n * SEPARACION_FAROLES
 	farol(pos, -53)
 	farol(pos, 53)
 	farol(-53, pos)
 	farol(53, pos)
-end
-for _, esquina in { Vector2.new(-53, -53), Vector2.new(53, -53), Vector2.new(-53, 53), Vector2.new(53, 53) } do
-	farol(esquina.X, esquina.Y)
 end
 
 -- Edificio con ventanas: un bloque, franjas de vidrio en cada piso y una terraza

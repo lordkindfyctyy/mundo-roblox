@@ -40,4 +40,20 @@ function Plano.puntoEnCalle(azar)
 	return Vector3.new(centro, 0, largo)
 end
 
+-- Los cruces de la cuadricula (donde hay semaforos): centro de cada uno, y = 0
+function Plano.cruces()
+	local lista = {}
+	for _, x in Plano.CALLES do
+		for _, z in Plano.CALLES do
+			table.insert(lista, Vector3.new(x, 0, z))
+		end
+	end
+	return lista
+end
+
+-- Luces de los semaforos: Semaforos.server.lua pone en Workspace los atributos
+-- "LuzX" y "LuzZ" ("verde", "amarilla" o "roja"), uno para los autos que van a lo
+-- largo de X y otro para los que van a lo largo de Z. Los autos los leen.
+Plano.ATRIBUTO_LUZ = { [true] = "LuzX", [false] = "LuzZ" }
+
 return Plano
