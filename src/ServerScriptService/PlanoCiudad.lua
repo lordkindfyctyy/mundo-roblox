@@ -62,6 +62,26 @@ function Plano.puntoEnPlaya(azar)
 	return Vector3.new(azar:NextNumber(p.ARENA_X1 + 4, p.ARENA_X2 - 8), p.ALTO, azar:NextNumber(-p.Z + 8, p.Z - 8))
 end
 
+-- El Barrio de casas (Casas.server.lua): al oeste de la ciudad, pasando el arco
+-- que hay al final de la avenida (x = -LIMITE, z = 0). Una calle a lo largo de X
+-- en z = 0 y terrenos a los dos lados, con el frente hacia la calle.
+Plano.BARRIO = {
+	X_CERCA = -160, -- donde empieza (junto a la pared de la ciudad)
+	X_LEJOS = -310, -- donde termina
+	Z = 75, -- de -Z a +Z
+	PUERTA = 7, -- medio ancho de la entrada
+	MEDIO_ANCHO_CALLE = 6,
+	-- Centro de cada terreno; los de z > 0 miran hacia -Z (la calle) y los otros hacia +Z
+	TERRENOS = {
+		Vector3.new(-190, 0, 36),
+		Vector3.new(-235, 0, 36),
+		Vector3.new(-280, 0, 36),
+		Vector3.new(-190, 0, -36),
+		Vector3.new(-235, 0, -36),
+		Vector3.new(-280, 0, -36),
+	},
+}
+
 -- Los cruces de la cuadricula (donde hay semaforos): centro de cada uno, y = 0
 function Plano.cruces()
 	local lista = {}

@@ -356,7 +356,11 @@ local function pared(x, z, ancho, fondo)
 end
 pared(0, -LIMITE - 1, LIMITE * 2 + 4, 2)
 pared(0, LIMITE + 1, LIMITE * 2 + 4, 2)
-pared(-LIMITE - 1, 0, 2, LIMITE * 2 + 4)
+-- Al oeste tambien: la entrada al Barrio de casas (Casas.server.lua)
+local puertaBarrio = Plano.BARRIO.PUERTA
+local tramoBarrio = LIMITE + 2 - puertaBarrio
+pared(-LIMITE - 1, -(puertaBarrio + tramoBarrio / 2), 2, tramoBarrio)
+pared(-LIMITE - 1, puertaBarrio + tramoBarrio / 2, 2, tramoBarrio)
 -- Al este queda un hueco al final de la avenida: la entrada a la Playa (Playa.server.lua)
 local puerta = Plano.PLAYA.PUERTA
 local largoTramo = LIMITE + 2 - puerta

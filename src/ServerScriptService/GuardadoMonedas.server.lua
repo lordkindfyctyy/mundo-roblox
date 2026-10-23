@@ -63,6 +63,9 @@ local function cargar(jugador)
 	for _, atributo in { "AutoCosas", "AutoColor", "AutoRayas", "AutoRuedas", "AutoMotor" } do
 		jugador:SetAttribute(atributo, guardado[atributo] or "")
 	end
+	-- Casa del Barrio y sus muebles (Casas.server.lua)
+	jugador:SetAttribute("TieneCasa", guardado.TieneCasa == true)
+	jugador:SetAttribute("Muebles", guardado.Muebles or "")
 	-- Primero las que tiene y despues las equipadas, para que el modelo se arme una sola vez
 	-- Cada mascota se guarda con su nivel (antes se guardaba true = nivel 1)
 	for id, nivel in guardado.Mascotas or {} do
@@ -117,6 +120,8 @@ local function guardar(jugador)
 		AutoRayas = jugador:GetAttribute("AutoRayas") or "",
 		AutoRuedas = jugador:GetAttribute("AutoRuedas") or "",
 		AutoMotor = jugador:GetAttribute("AutoMotor") or "",
+		TieneCasa = jugador:GetAttribute("TieneCasa") == true,
+		Muebles = jugador:GetAttribute("Muebles") or "",
 		Logros = {},
 		Mascotas = {},
 		MascotasEquipadas = {},

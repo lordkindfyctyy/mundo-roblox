@@ -55,7 +55,7 @@ local botonAbrir = nuevoBoton(pantalla, 20)
 botonAbrir.Size = UDim2.fromOffset(120, 46)
 botonAbrir.BackgroundColor3 = Color3.fromRGB(230, 110, 150)
 botonAbrir.Text = "Mascotas"
-Interfaz.botonLateral(botonAbrir, "derecha", 0, 1)
+Interfaz.botonLateral(botonAbrir, "derecha", 0, 2)
 
 -- Panel
 local panel = Instance.new("Frame")

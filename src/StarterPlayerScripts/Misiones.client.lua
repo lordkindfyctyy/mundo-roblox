@@ -24,9 +24,9 @@ tarjeta.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 tarjeta.BackgroundTransparency = 0.15
 tarjeta.Parent = pantalla
 Interfaz.escalar(tarjeta)
--- En la compu va arriba a la derecha; en el celular, debajo del boton Mascotas
+-- En la compu va arriba a la derecha; en el celular, debajo de los botones Mascotas y Mi casa
 Interfaz.alCambiarPantalla(function()
-	local y = Interfaz.esTactil() and 10 + 56 * Interfaz.escala() or 10
+	local y = Interfaz.esTactil() and 10 + 112 * Interfaz.escala() or 10
 	tarjeta.Position = UDim2.new(1, -12, 0, y)
 end)
 
