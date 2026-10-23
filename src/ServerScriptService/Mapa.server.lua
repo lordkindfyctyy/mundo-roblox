@@ -3,7 +3,6 @@
 -- Todo se crea por codigo y queda dentro de la carpeta "Mapa" en Workspace.
 -- El mapa es siempre igual porque usa una semilla fija (SEMILLA).
 
-local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 
 local TAMANO = 100 -- el cesped es un cuadrado de TAMANO x TAMANO
@@ -190,5 +189,4 @@ for _ = 1, CANTIDAD_FLORES do
 	crearFlor(Vector3.new(azar:NextNumber(-mitad + 3, mitad - 3), 0, azar:NextNumber(-mitad + 3, mitad - 3)))
 end
 
--- Un dia soleado
-Lighting.ClockTime = 14
+-- La hora del dia la maneja DiaNoche.server.lua

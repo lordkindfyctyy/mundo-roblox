@@ -9,6 +9,7 @@
 --   que salen de las entradas del parque hacia afuera. Entre las calles quedan
 --   12 manzanas con edificios.
 
+local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
 
 -- Donde van las calles (tambien lo usa JuegoMonedas para las monedas de la ciudad)
@@ -181,6 +182,8 @@ local function farol(x, z)
 	luz.Brightness = 1.5
 	luz.Color = Color3.fromRGB(255, 225, 170)
 	luz.Parent = lampara
+	-- DiaNoche.server.lua la prende de noche y la apaga de dia
+	CollectionService:AddTag(lampara, "LuzDeNoche")
 end
 
 -- Faroles a lo largo de la vereda del parque (sin tapar las entradas del medio;

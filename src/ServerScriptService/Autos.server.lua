@@ -5,6 +5,7 @@
 -- de Z (si no, dos autos podrian quedarse esperandose para siempre).
 -- Al llegar al borde de la ciudad vuelven a entrar por el otro lado.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -97,7 +98,16 @@ local function crearAuto(color)
 
 	-- Faros adelante (-Z) y luces de freno atras (+Z)
 	for _, x in { -ANCHO / 2 + 0.7, ANCHO / 2 - 0.7 } do
-		parte(modelo, "Faro", Vector3.new(0.8, 0.5, 0.2), CFrame.new(x, altoRueda / 2 + ALTO * 0.7, -LARGO / 2 - 0.1), Color3.fromRGB(255, 250, 210), Enum.Material.Neon)
+		local faro = parte(modelo, "Faro", Vector3.new(0.8, 0.5, 0.2), CFrame.new(x, altoRueda / 2 + ALTO * 0.7, -LARGO / 2 - 0.1), Color3.fromRGB(255, 250, 210), Enum.Material.Neon)
+		-- De noche alumbran la calle (DiaNoche.server.lua)
+		local luz = Instance.new("SpotLight")
+		luz.Face = Enum.NormalId.Front
+		luz.Range = 28
+		luz.Angle = 70
+		luz.Brightness = 2
+		luz.Color = Color3.fromRGB(255, 245, 210)
+		luz.Parent = faro
+		CollectionService:AddTag(faro, "LuzDeNoche")
 		parte(modelo, "LuzFreno", Vector3.new(0.8, 0.5, 0.2), CFrame.new(x, altoRueda / 2 + ALTO * 0.7, LARGO / 2 + 0.1), Color3.fromRGB(120, 0, 0), Enum.Material.SmoothPlastic)
 	end
 
