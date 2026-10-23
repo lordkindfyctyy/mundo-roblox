@@ -104,6 +104,9 @@ function Torre.construir(padre, x1, x2, z1, z2, piso)
 
 	local centro = Vector3.new((x1 + x2) / 2, piso, (z1 + z2) / 2)
 	local base = CFrame.new(centro)
+	-- Para las misiones: el pie de la torre (donde arranca la espiral) y la cima
+	Torre.lugar = (base * CFrame.new(0, 0, -(MEDIO_LADO + ANCHO_PLATAFORMA + 6))).Position
+	Torre.cima = centro + Vector3.new(0, ALTO, 0)
 
 	-- Plaza de cesped alrededor
 	parte(modelo, "Plaza", Vector3.new(x2 - x1 - 6, 0.2, z2 - z1 - 6), base * CFrame.new(0, 0.1, 0), Color3.fromRGB(90, 165, 70), Enum.Material.Grass)

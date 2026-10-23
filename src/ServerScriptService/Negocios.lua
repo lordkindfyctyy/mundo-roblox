@@ -7,11 +7,27 @@
 -- (el frente del local queda hacia -Z de base).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
 
 local ConfigAlimentos = require(ReplicatedStorage:WaitForChild("ConfigAlimentos"))
 
 local Negocios = {}
+
+-- Punto en la vereda frente a la puerta de cada negocio, por nombre (lo usan las misiones)
+Negocios.lugares = {}
+
+local function anotarLugar(nombre, base, fondo)
+	Negocios.lugares[nombre] = (base * CFrame.new(0, 0, -fondo / 2 - 4)).Position
+end
+
+-- Avisa a Misiones.server.lua (si esta) que el jugador avanzo en algo
+local function progresoMision(jugador, tipo, cantidad)
+	local evento = ServerStorage:FindFirstChild("ProgresoMision")
+	if evento then
+		evento:Fire(jugador, tipo, cantidad)
+	end
+end
 
 -- Aviso al jugador despues de intentar una compra (lo muestra Alimentos.client.lua)
 local aviso = Instance.new("RemoteEvent")
@@ -69,6 +85,7 @@ function Negocios.comun(padre, base, ancho, fondo, nombre, color)
 	local modelo = Instance.new("Model")
 	modelo.Name = nombre
 	modelo.Parent = padre
+	anotarLugar(nombre, base, fondo)
 
 	local alto = 10
 	parte(modelo, "Cuerpo", Vector3.new(ancho, alto, fondo), base * CFrame.new(0, alto / 2, 0), Color3.fromRGB(235, 230, 220), Enum.Material.Concrete)
@@ -112,6 +129,7 @@ local function comprar(jugador, alimento)
 	jugador:SetAttribute("AlimentoFactor", alimento.factor)
 	jugador:SetAttribute("AlimentoHasta", desde + alimento.duracion)
 	aviso:FireClient(jugador, string.format("¡Ñam! %s: tus mascotas dan x%s de bonus", alimento.nombre, tostring(alimento.factor)), true)
+	progresoMision(jugador, "alimento", 1)
 end
 
 -- Bolsa de alimento a la venta, con su precio arriba y el boton para comprar
@@ -151,6 +169,7 @@ function Negocios.petShop(padre, base, ancho, fondo)
 	local modelo = Instance.new("Model")
 	modelo.Name = "LoDeLaloPetShop"
 	modelo.Parent = padre
+	anotarLugar("Lo De Lalo Pet Shop", base, fondo)
 
 	local alto = 11
 	local grosor = 0.8

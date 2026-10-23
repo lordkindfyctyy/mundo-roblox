@@ -148,6 +148,12 @@ local function recoger(moneda, jugador)
 	jugador.leaderstats.Total.Value += ganado
 	animarRecogida(moneda, jugador)
 
+	-- Las monedas de la calle cuentan para la mision "Juntá monedas en las calles"
+	local progresoMision = ServerStorage:FindFirstChild("ProgresoMision")
+	if progresoMision and moneda:GetAttribute("Zona") == "ciudad" then
+		progresoMision:Fire(jugador, "monedasCiudad", 1)
+	end
+
 	-- Cuenta las gigantes que recogio (lo usan los logros)
 	if moneda.Name == "MonedaGigante" then
 		jugador:SetAttribute("Gigantes", (jugador:GetAttribute("Gigantes") or 0) + 1)

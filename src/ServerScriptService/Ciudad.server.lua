@@ -358,3 +358,6 @@ pared(0, -LIMITE - 1, LIMITE * 2 + 4, 2)
 pared(0, LIMITE + 1, LIMITE * 2 + 4, 2)
 pared(-LIMITE - 1, 0, 2, LIMITE * 2 + 4)
 pared(LIMITE + 1, 0, 2, LIMITE * 2 + 4)
+
+-- Listo: las misiones ya pueden usar los lugares de los negocios y la Torre
+Workspace:SetAttribute("CiudadLista", true)
