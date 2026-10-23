@@ -24,7 +24,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 - Cada día podés reclamar una **recompensa diaria** (botón *Regalo* debajo de la tienda). Con la racha de días seguidos el premio sube de 50 a 350 monedas en el día 7, y después vuelve a empezar. Si te salteás un día, la racha se reinicia. El día cambia a las 00:00 UTC (21:00 en Argentina).
 - Hay 12 **logros** (botón *Logros* debajo de Regalo) con premio en monedas: juntar monedas, cazar gigantes, comprar mejoras, renacer, mantener la racha diaria… El panel muestra el progreso de cada uno y un aviso salta al desbloquearlos.
 - Suena **música de fondo** (5 temas alegres en orden al azar). El botón *Música* arriba de la tienda la silencia solo para vos.
-- Con el botón *Mascotas* (borde derecho) abrís huevos de 500 monedas y conseguís mascotas de 5 rarezas (Común a Legendaria). Podés llevar hasta 3 equipadas: te siguen por el mapa y suman un bonus de monedas (de +5% a +60% cada una).
+- Con el botón *Mascotas* (borde derecho) abrís huevos de 500 monedas y conseguís mascotas de 5 rarezas (Común a Legendaria). Podés llevar hasta 3 equipadas: te siguen por el mapa y suman un bonus de monedas (de +5% a +60% cada una). Cada especie tiene su propio modelo (orejas, hocico, alas, cola...), con el nombre arriba del color de su rareza; las raras brillan, las épicas tiran destellos, la legendaria tiene fuego, y el búho, el dragón y el fénix vuelan a tu lado.
 - La interfaz se adapta a la pantalla: en celular todo se achica, los botones de los costados suben para no tapar el joystick ni el botón de saltar, y cada panel tiene una **X** para cerrarlo (se abre uno a la vez).
 - Alrededor del parque hay una **ciudad** para recorrer: calles con líneas pintadas, veredas, edificios de distintas alturas y faroles. Se sale del parque por las entradas del medio de cada lado del cerco. Por las calles andan **autos** por la mano derecha; frenan si tienen a alguien adelante, así que nunca te atropellan, y respetan los **semáforos** de cada cruce (verde 8 s, amarillo 2 s y un segundo todo en rojo antes de darle paso a la otra calle).
 - Frente al parque hay **negocios** con cartel (heladería, pizzería, kiosco, farmacia, panadería, librería y verdulería) y **Lo De Lalo Pet Shop**, al oeste: se puede entrar y en el mostrador comprar alimento para las mascotas. Mientras dura, el bonus de monedas de las mascotas equipadas se multiplica (Snack x1,5 por 1 min, Balanceado x2 por 2 min, Premium x3 por 3 min) y un cartel abajo muestra cuánto falta.
@@ -57,6 +57,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/StarterPlayerScripts/Carreras.client.lua` | Cronómetro y marca del próximo arco durante la carrera |
 | `src/ServerScriptService/Ciudad.server.lua` | Genera la ciudad alrededor del parque: calles, veredas, 12 manzanas con edificios, faroles y sendas peatonales |
 | `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
+| `src/ServerScriptService/ModelosMascotas.lua` | Arma el modelo de cada especie de mascota y sus efectos por rareza |
 | `src/ServerScriptService/Mascotas.server.lua` | Huevos, equipar mascotas y modelos que siguen al jugador |
 | `src/ServerScriptService/Logros.server.lua` | Detecta los logros cumplidos, paga el premio y avisa |
 | `src/ServerScriptService/Recompensa.server.lua` | Valida y paga la recompensa diaria con racha |
@@ -125,7 +126,7 @@ El guardado usa DataStore, así que en Studio hay que:
 
 - [ ] Publicar el juego para que lo prueben otras personas
 - [x] Ajustar la interfaz para celular (hay muchos botones y paneles)
-- [ ] Mascotas con mejor aspecto (modelos del Toolbox)
+- [x] Mascotas con mejor aspecto
 
 
 ## Autor

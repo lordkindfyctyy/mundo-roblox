@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local ConfigMascotas = require(ReplicatedStorage:WaitForChild("ConfigMascotas"))
+local ModelosMascotas = require(script.Parent:WaitForChild("ModelosMascotas"))
 
 -- Donde se coloca cada mascota equipada, relativo al jugador (X a un lado, Z hacia atras)
 local POSICIONES = {
@@ -17,6 +18,7 @@ local POSICIONES = {
 	Vector3.new(0, 0, 7),
 }
 local SUAVIZADO = 8 -- cuanto mas alto, mas rapido alcanzan al jugador
+local ALTURA_VUELO = 1.5 -- las que vuelan (Buho, Dragon, Fenix) van a la altura del jugador
 
 local abrirHuevo = Instance.new("RemoteFunction")
 abrirHuevo.Name = "AbrirHuevo"
@@ -33,54 +35,9 @@ carpetaModelos.Parent = Workspace
 local seguidores = {} -- jugador -> lista de modelos, en el orden de POSICIONES
 local pendiente = {} -- jugador -> true si ya hay una reconstruccion en espera
 
-local function parteSuave(nombre, tamano, color, forma, material)
-	local parte = Instance.new("Part")
-	parte.Name = nombre
-	parte.Size = tamano
-	parte.Color = color
-	parte.Shape = forma or Enum.PartType.Ball
-	parte.Material = material or Enum.Material.SmoothPlastic
-	parte.Anchored = true
-	parte.CanCollide = false
-	parte.CanTouch = false
-	parte.CanQuery = false
-	return parte
-end
-
--- Arma el modelo de una mascota: cuerpo redondo, dos ojos y dos orejas
+-- El modelo de cada especie lo arma ModelosMascotas.lua
 local function crearModelo(mascota)
-	local rareza = ConfigMascotas.Rarezas[mascota.rareza]
-	local e = rareza.escala
-	local brilla = mascota.rareza == "Epica" or mascota.rareza == "Legendaria"
-	local material = brilla and Enum.Material.Neon or Enum.Material.SmoothPlastic
-
-	local modelo = Instance.new("Model")
-	modelo.Name = mascota.nombre
-
-	local cuerpo = parteSuave("Cuerpo", Vector3.one * 2 * e, mascota.color, nil, material)
-	cuerpo.Parent = modelo
-	modelo.PrimaryPart = cuerpo
-
-	-- Los ojos miran hacia -Z, que es el frente del jugador
-	for _, lado in { -1, 1 } do
-		local ojo = parteSuave("Ojo", Vector3.one * 0.35 * e, Color3.new(0, 0, 0))
-		ojo.CFrame = cuerpo.CFrame * CFrame.new(lado * 0.4 * e, 0.25 * e, -0.85 * e)
-		ojo.Parent = modelo
-
-		local oreja = parteSuave("Oreja", Vector3.one * 0.7 * e, mascota.color, nil, material)
-		oreja.CFrame = cuerpo.CFrame * CFrame.new(lado * 0.65 * e, 0.9 * e, 0)
-		oreja.Parent = modelo
-	end
-
-	if brilla then
-		local luz = Instance.new("PointLight")
-		luz.Color = mascota.color
-		luz.Range = 10
-		luz.Brightness = 1.5
-		luz.Parent = cuerpo
-	end
-
-	return modelo
+	return ModelosMascotas.crear(mascota, ConfigMascotas.Rarezas[mascota.rareza])
 end
 
 local function borrarModelos(jugador)
@@ -229,8 +186,11 @@ RunService.Heartbeat:Connect(function(dt)
 		local raiz = jugador.Character and jugador.Character:FindFirstChild("HumanoidRootPart")
 		if raiz then
 			for i, modelo in lista do
-				local rebote = math.sin(reloj * 3 + i * 2) * 0.3
-				local objetivo = raiz.CFrame * CFrame.new(POSICIONES[i].X, -2 + rebote, POSICIONES[i].Z)
+				-- Las que vuelan van mas alto y suben y bajan mas
+				local vuela = modelo:GetAttribute("Vuela")
+				local rebote = math.sin(reloj * 3 + i * 2) * (vuela and 0.6 or 0.3)
+				local altura = vuela and ALTURA_VUELO or -2
+				local objetivo = raiz.CFrame * CFrame.new(POSICIONES[i].X, altura + rebote, POSICIONES[i].Z)
 				modelo:PivotTo(modelo:GetPivot():Lerp(objetivo, math.min(1, dt * SUAVIZADO)))
 			end
 		end
