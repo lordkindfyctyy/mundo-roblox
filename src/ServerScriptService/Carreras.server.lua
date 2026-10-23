@@ -2,11 +2,14 @@
 -- autos de Vehiculos.server.lua. Se larga pasando con el auto por el arco de la
 -- avenida norte (mirando hacia afuera), hay que pasar por los arcos numerados en
 -- orden y se llega de nuevo a la largada. Premio por terminar y extra por record.
+-- Los records quedan guardados (OrderedDataStore) y el cartel de la largada
+-- muestra los 5 mejores de todos los tiempos.
 --
 -- Al jugador le deja estos atributos (los muestra Carreras.client.lua):
 --   CarreraInicio (hora del servidor; no esta si no corre), CarreraControl (numero
 --   del proximo arco), CarreraTotal, CarreraDestino (Vector3) y CarreraMejor.
 
+local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -108,36 +111,119 @@ for _, poste in { -5, 5 } do
 	parte("Poste", Vector3.new(0.5, 6, 0.5), CFrame.new(10, VEREDA + 1, LARGADA.Z - 12 + poste), Color3.fromRGB(60, 60, 65), Enum.Material.Metal)
 end
 
-local mejores = {} -- { nombre, tiempo }, del mas rapido al mas lento (de esta partida)
+-- Records guardados: el mejor tiempo de cada jugador, en milesimas, en un
+-- OrderedDataStore (de menor a mayor es del mas rapido al mas lento). Si no se
+-- puede usar (por ejemplo en Studio sin "Enable Studio Access to API Services"),
+-- el cartel muestra los tiempos de esta partida.
+local RECORDS = DataStoreService:GetOrderedDataStore("MundoRoblox_Carrera_v1")
+local PUESTOS = 5
+local ACTUALIZAR_TABLERO = 60
+
+local mejoresPartida = {} -- { nombre, tiempo }, del mas rapido al mas lento (de esta partida)
+local mejoresGuardados = nil -- igual, leidos del DataStore; nil si no se pudo
+local nombres = {} -- UserId -> nombre, para no pedirlo cada vez
+
+local function nombreDe(userId)
+	if not nombres[userId] then
+		local ok, nombre = pcall(function()
+			return Players:GetNameFromUserIdAsync(userId)
+		end)
+		nombres[userId] = ok and nombre or ("Jugador " .. userId)
+	end
+	return nombres[userId]
+end
 
 local function actualizarTablero()
-	local lineas = { "🏁 CARRERA", "Subí a un auto y pasá", "por la largada", "", "Mejores tiempos:" }
-	if #mejores == 0 then
+	local lista = mejoresGuardados or mejoresPartida
+	local lineas = { "🏁 CARRERA", "Subí a un auto y pasá", "por la largada", "", "Récords:" }
+	if #lista == 0 then
 		table.insert(lineas, "¡Nadie todavía!")
 	end
-	for i = 1, math.min(5, #mejores) do
-		table.insert(lineas, string.format("%d. %s  %.1f s", i, mejores[i].nombre, mejores[i].tiempo))
+	for i = 1, math.min(PUESTOS, #lista) do
+		table.insert(lineas, string.format("%d. %s  %.1f s", i, lista[i].nombre, lista[i].tiempo))
 	end
 	textoTablero.Text = table.concat(lineas, "\n")
 end
-actualizarTablero()
+
+local function leerRecords()
+	local ok, pagina = pcall(function()
+		return RECORDS:GetSortedAsync(true, PUESTOS):GetCurrentPage()
+	end)
+	if not ok then
+		mejoresGuardados = nil
+		return
+	end
+	local lista = {}
+	for _, fila in pagina do
+		table.insert(lista, { nombre = nombreDe(tonumber(fila.key)), tiempo = fila.value / 1000 })
+	end
+	mejoresGuardados = lista
+end
 
 local function anotarTiempo(jugador, tiempo)
-	for i, m in mejores do
-		if m.nombre == jugador.DisplayName then
+	for i, m in mejoresPartida do
+		if m.nombre == jugador.Name then
 			if tiempo >= m.tiempo then
 				return
 			end
-			table.remove(mejores, i)
+			table.remove(mejoresPartida, i)
 			break
 		end
 	end
-	table.insert(mejores, { nombre = jugador.DisplayName, tiempo = tiempo })
-	table.sort(mejores, function(a, b)
+	table.insert(mejoresPartida, { nombre = jugador.Name, tiempo = tiempo })
+	table.sort(mejoresPartida, function(a, b)
 		return a.tiempo < b.tiempo
 	end)
 	actualizarTablero()
 end
+
+-- Guarda el record del jugador si es mejor que el que ya tenia guardado
+local function guardarRecord(jugador, tiempo)
+	local milesimas = math.floor(tiempo * 1000)
+	task.spawn(function()
+		local ok, problema = pcall(function()
+			RECORDS:UpdateAsync(tostring(jugador.UserId), function(anterior)
+				if anterior == nil or milesimas < anterior then
+					return milesimas
+				end
+				return nil -- no cambia
+			end)
+		end)
+		if not ok then
+			warn("No se pudo guardar el récord de carrera:", problema)
+			return
+		end
+		leerRecords()
+		actualizarTablero()
+	end)
+end
+
+-- Al entrar, se le carga su record guardado
+local function cargarRecord(jugador)
+	local ok, milesimas = pcall(function()
+		return RECORDS:GetAsync(tostring(jugador.UserId))
+	end)
+	if ok and milesimas and jugador.Parent then
+		local actual = jugador:GetAttribute("CarreraMejor")
+		if not actual or milesimas / 1000 < actual then
+			jugador:SetAttribute("CarreraMejor", milesimas / 1000)
+		end
+	end
+end
+
+Players.PlayerAdded:Connect(cargarRecord)
+for _, jugador in Players:GetPlayers() do
+	task.spawn(cargarRecord, jugador)
+end
+
+-- El cartel se refresca solo cada tanto (otros servidores tambien guardan records)
+task.spawn(function()
+	while true do
+		leerRecords()
+		actualizarTablero()
+		task.wait(ACTUALIZAR_TABLERO)
+	end
+end)
 
 local aviso -- RemoteEvent AvisoTienda de Negocios.lua (cartelito abajo)
 local function avisar(jugador, texto, ok)
@@ -184,6 +270,7 @@ local function llegar(jugador)
 	end
 	if record then
 		jugador:SetAttribute("CarreraMejor", tiempo)
+		guardarRecord(jugador, tiempo)
 	end
 	anotarTiempo(jugador, tiempo)
 	avisar(jugador, string.format("🏁 ¡Llegaste en %.1f s!%s +%d monedas", tiempo, record and " ¡Récord!" or "", premio), true)
