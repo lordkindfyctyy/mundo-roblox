@@ -72,10 +72,15 @@ local titulo = nuevoTexto(panel, 26, Enum.Font.GothamBold, Color3.fromRGB(255, 2
 titulo.Size = UDim2.new(1, 0, 0, 44)
 titulo.Text = "Mascotas"
 
-local botonHuevo = nuevoBoton(panel, 18)
-botonHuevo.AnchorPoint = Vector2.new(0.5, 0)
-botonHuevo.Position = UDim2.new(0.5, 0, 0, 48)
-botonHuevo.Size = UDim2.fromOffset(320, 44)
+-- Un boton por huevo, uno al lado del otro
+local botonesHuevo = {}
+local anchoBoton = (420 - 10 * (#ConfigMascotas.Huevos - 1)) / #ConfigMascotas.Huevos
+for i, huevo in ConfigMascotas.Huevos do
+	local boton = nuevoBoton(panel, 15)
+	boton.Position = UDim2.fromOffset(20 + (i - 1) * (anchoBoton + 10), 48)
+	boton.Size = UDim2.fromOffset(anchoBoton, 44)
+	botonesHuevo[huevo.id] = boton
+end
 
 local resultado = nuevoTexto(panel, 16, Enum.Font.GothamBold, Color3.new(1, 1, 1))
 resultado.Position = UDim2.fromOffset(10, 96)
@@ -121,15 +126,14 @@ for i, mascota in ConfigMascotas.Lista do
 
 	local detalle = nuevoTexto(marco, 13, Enum.Font.Gotham, rareza.color, Enum.TextXAlignment.Left)
 	detalle.Position = UDim2.fromOffset(56, 29)
-	detalle.Size = UDim2.new(0.5, 0, 0, 20)
-	detalle.Text = string.format("%s · +%d%% monedas", rareza.nombre, math.floor(mascota.bonus * 100 + 0.5))
+	detalle.Size = UDim2.new(0.55, 0, 0, 20)
 
 	local boton = nuevoBoton(marco, 15)
 	boton.AnchorPoint = Vector2.new(1, 0.5)
 	boton.Position = UDim2.new(1, -10, 0.5, 0)
 	boton.Size = UDim2.fromOffset(96, 36)
 
-	filas[mascota.id] = { marco = marco, muestra = muestra, nombre = nombre, boton = boton }
+	filas[mascota.id] = { marco = marco, muestra = muestra, nombre = nombre, detalle = detalle, boton = boton }
 
 	boton.Activated:Connect(function()
 		if not tengo:FindFirstChild(mascota.id) then
@@ -155,6 +159,17 @@ local function actualizar()
 		fila.nombre.TextTransparency = esMia and 0 or 0.5
 		fila.muestra.BackgroundTransparency = esMia and 0 or 0.7
 
+		-- Rareza, nivel y bonus (en el nivel que la tenes, o el del nivel 1 si no la tenes)
+		local nivel = esMia and ConfigMascotas.nivel(jugador, mascota.id) or 1
+		local bonus = math.floor(ConfigMascotas.bonusEnNivel(mascota, nivel) * 100 + 0.5)
+		local rareza = ConfigMascotas.Rarezas[mascota.rareza].nombre
+		if esMia then
+			fila.detalle.Text = string.format("%s · Nv %d/%d · +%d%%", rareza, nivel, ConfigMascotas.NIVEL_MAXIMO, bonus)
+		else
+			local soloDorado = mascota.pesos.Comun == nil
+			fila.detalle.Text = string.format("%s · +%d%%%s", rareza, bonus, soloDorado and " · huevo dorado" or "")
+		end
+
 		if not esMia then
 			fila.boton.Text = "Bloqueada"
 			fila.boton.BackgroundColor3 = COLOR_GRIS
@@ -177,20 +192,26 @@ local function actualizar()
 		bonus
 	)
 
-	botonHuevo.Text = string.format("Abrir huevo — %d monedas", ConfigMascotas.COSTO_HUEVO)
-	botonHuevo.BackgroundColor3 = monedas.Value >= ConfigMascotas.COSTO_HUEVO and COLOR_VERDE or COLOR_GRIS
+	for _, huevo in ConfigMascotas.Huevos do
+		local boton = botonesHuevo[huevo.id]
+		boton.Text = string.format("%s · %d", huevo.nombre, huevo.costo)
+		boton.BackgroundColor3 = monedas.Value >= huevo.costo and huevo.color or COLOR_GRIS
+	end
 end
 
-botonHuevo.Activated:Connect(function()
-	local ok, texto, id = abrirHuevo:InvokeServer()
-	resultado.Text = texto or ""
-	local mascota = id and ConfigMascotas.buscar(id)
-	if ok and mascota then
-		resultado.TextColor3 = ConfigMascotas.Rarezas[mascota.rareza].color
-	else
-		resultado.TextColor3 = Color3.fromRGB(255, 100, 100)
-	end
-end)
+for _, huevo in ConfigMascotas.Huevos do
+	botonesHuevo[huevo.id].Activated:Connect(function()
+		local ok, texto, id = abrirHuevo:InvokeServer(huevo.id)
+		resultado.Text = texto or ""
+		local mascota = id and ConfigMascotas.buscar(id)
+		if ok and mascota then
+			resultado.TextColor3 = ConfigMascotas.Rarezas[mascota.rareza].color
+		else
+			resultado.TextColor3 = Color3.fromRGB(255, 100, 100)
+		end
+		actualizar() -- el nivel puede haber subido
+	end)
+end
 
 botonAbrir.Activated:Connect(function()
 	Interfaz.alternar(panel)

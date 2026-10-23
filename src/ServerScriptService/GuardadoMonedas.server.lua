@@ -60,10 +60,14 @@ local function cargar(jugador)
 	jugador:SetAttribute("Racha", guardado.Racha or 0)
 	jugador:SetAttribute("Gigantes", guardado.Gigantes or 0)
 	-- Primero las que tiene y despues las equipadas, para que el modelo se arme una sola vez
-	for id in guardado.Mascotas or {} do
+	-- Cada mascota se guarda con su nivel (antes se guardaba true = nivel 1)
+	for id, nivel in guardado.Mascotas or {} do
 		local marca = Instance.new("BoolValue")
 		marca.Name = id
 		marca.Value = true
+		if type(nivel) == "number" and nivel > 1 then
+			marca:SetAttribute("Nivel", nivel)
+		end
 		marca.Parent = mascotas
 	end
 	for id in guardado.MascotasEquipadas or {} do
@@ -113,7 +117,8 @@ local function guardar(jugador)
 		local origen = jugador:FindFirstChild(carpeta)
 		if origen then
 			for _, marca in origen:GetChildren() do
-				datos[nombre][marca.Name] = true
+				-- Las que tiene se guardan con su nivel; las equipadas, solo la marca
+				datos[nombre][marca.Name] = nombre == "Mascotas" and (marca:GetAttribute("Nivel") or 1) or true
 			end
 		end
 	end

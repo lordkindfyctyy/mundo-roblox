@@ -36,8 +36,8 @@ local seguidores = {} -- jugador -> lista de modelos, en el orden de POSICIONES
 local pendiente = {} -- jugador -> true si ya hay una reconstruccion en espera
 
 -- El modelo de cada especie lo arma ModelosMascotas.lua
-local function crearModelo(mascota)
-	return ModelosMascotas.crear(mascota, ConfigMascotas.Rarezas[mascota.rareza])
+local function crearModelo(mascota, nivel)
+	return ModelosMascotas.crear(mascota, ConfigMascotas.Rarezas[mascota.rareza], nivel)
 end
 
 local function borrarModelos(jugador)
@@ -64,7 +64,7 @@ local function reconstruir(jugador)
 	for i, marca in equipadas:GetChildren() do
 		local mascota = ConfigMascotas.buscar(marca.Name)
 		if mascota and POSICIONES[i] then
-			local modelo = crearModelo(mascota)
+			local modelo = crearModelo(mascota, ConfigMascotas.nivel(jugador, mascota.id))
 			modelo.Parent = carpetaModelos
 			modelo:PivotTo(raiz.CFrame * CFrame.new(POSICIONES[i].X, -2, POSICIONES[i].Z))
 			table.insert(lista, modelo)
@@ -111,27 +111,38 @@ local function prepararJugador(jugador)
 	end)
 end
 
-abrirHuevo.OnServerInvoke = function(jugador)
+abrirHuevo.OnServerInvoke = function(jugador, huevoId)
 	local leaderstats = jugador:FindFirstChild("leaderstats")
 	local mascotas = jugador:FindFirstChild("Mascotas")
 	if not jugador:GetAttribute("DatosCargados") or not leaderstats or not mascotas then
 		return false, "Todavía cargando, probá de nuevo"
 	end
+	local huevo = ConfigMascotas.huevo(huevoId)
+	if not huevo then
+		return false, "Ese huevo no existe"
+	end
 
 	local monedas = leaderstats.Monedas
-	if monedas.Value < ConfigMascotas.COSTO_HUEVO then
-		return false, "Necesitás " .. ConfigMascotas.COSTO_HUEVO .. " monedas para abrir un huevo"
+	if monedas.Value < huevo.costo then
+		return false, string.format("Necesitás %d monedas para el %s", huevo.costo, string.lower(huevo.nombre))
 	end
-	monedas.Value -= ConfigMascotas.COSTO_HUEVO
+	monedas.Value -= huevo.costo
 
-	local mascota = ConfigMascotas.sortear()
+	local mascota = ConfigMascotas.sortear(huevo.id)
 	local rareza = ConfigMascotas.Rarezas[mascota.rareza]
 
-	if mascotas:FindFirstChild(mascota.id) then
-		-- Repetida: devolvemos parte de lo que costo el huevo
-		local reembolso = math.floor(ConfigMascotas.COSTO_HUEVO * ConfigMascotas.REEMBOLSO_REPETIDA)
+	local yaLaTengo = mascotas:FindFirstChild(mascota.id)
+	if yaLaTengo then
+		-- Repetida: sube de nivel; si ya esta al maximo, devolvemos parte del huevo
+		local nivel = yaLaTengo:GetAttribute("Nivel") or 1
+		if nivel < ConfigMascotas.NIVEL_MAXIMO then
+			yaLaTengo:SetAttribute("Nivel", nivel + 1)
+			pedirReconstruir(jugador) -- el cartel de nombre muestra el nivel
+			return true, string.format("¡%s (%s) subió a nivel %d!", mascota.nombre, rareza.nombre, nivel + 1), mascota.id
+		end
+		local reembolso = math.floor(huevo.costo * ConfigMascotas.REEMBOLSO_REPETIDA)
 		monedas.Value += reembolso
-		return true, string.format("¡%s (%s) repetida! +%d monedas", mascota.nombre, rareza.nombre, reembolso), mascota.id
+		return true, string.format("¡%s ya está en nivel máximo! +%d monedas", mascota.nombre, reembolso), mascota.id
 	end
 
 	local marca = Instance.new("BoolValue")

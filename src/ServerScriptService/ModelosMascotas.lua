@@ -3,7 +3,7 @@
 -- cilindros para patas y colas. Todo mira hacia -Z (el frente) y el centro del
 -- cuerpo queda en el origen; Mascotas.server.lua lo mueve con PivotTo.
 --
--- ModelosMascotas.crear(mascota, rareza) devuelve el Model. Si la mascota vuela,
+-- ModelosMascotas.crear(mascota, rareza, nivel) devuelve el Model. Si la mascota vuela,
 -- el modelo tiene el atributo "Vuela" (Mascotas.server.lua la hace ir mas alto).
 
 local ModelosMascotas = {}
@@ -218,8 +218,73 @@ function Especies.Fenix(m, e, c)
 	end
 end
 
+function Especies.Pinguino(m, e, c)
+	pieza(m, e, "Cuerpo", "esfera", Vector3.new(1.5, 1.9, 1.4), en(0, 0, 0), c)
+	pieza(m, e, "Panza", "esfera", Vector3.new(1.1, 1.5, 0.5), en(0, -0.1, -0.5), BLANCO)
+	pieza(m, e, "Cara", "esfera", Vector3.new(0.9, 0.6, 0.3), en(0, 0.55, -0.6), BLANCO)
+	ojos(m, e, 0.62, -0.75, 0.2, 0.17)
+	pieza(m, e, "Pico", "cuna", Vector3.new(0.3, 0.2, 0.35), en(0, 0.42, -0.85, 0, 180, 0), NARANJA)
+	for _, lado in { -1, 1 } do
+		pieza(m, e, "Aleta", "esfera", Vector3.new(0.2, 1, 0.5), en(lado * 0.78, 0, 0, 0, 0, lado * 25), c)
+		pieza(m, e, "Pata", "bloque", Vector3.new(0.4, 0.12, 0.5), en(lado * 0.3, -0.95, -0.25), NARANJA)
+	end
+	-- Bufanda roja
+	pieza(m, e, "Bufanda", "cilindro", Vector3.new(0.25, 1.35, 1.35), en(0, 0.2, 0, 0, 0, 90), Color3.fromRGB(220, 40, 50))
+end
+
+function Especies.Tigre(m, e, c)
+	Especies.Gatito(m, e, c)
+	-- Rayas negras sobre el lomo y la cabeza, y hocico blanco
+	for i, z in { -0.2, 0.25, 0.7 } do
+		pieza(m, e, "Raya", "bloque", Vector3.new(1.3, 0.12, 0.14), en(0, 0.6 - i * 0.03, z), NEGRO)
+	end
+	for _, lado in { -1, 1 } do
+		pieza(m, e, "RayaCara", "bloque", Vector3.new(0.35, 0.1, 0.1), en(lado * 0.62, 0.95, -1.1, 0, 0, lado * 20), NEGRO)
+	end
+	pieza(m, e, "Hocico", "esfera", Vector3.new(0.7, 0.45, 0.3), en(0, 0.55, -1.38), BLANCO)
+end
+
+function Especies.Unicornio(m, e, c)
+	local arcoiris = {
+		Color3.fromRGB(255, 90, 90),
+		Color3.fromRGB(255, 180, 60),
+		Color3.fromRGB(255, 230, 80),
+		Color3.fromRGB(90, 210, 110),
+		Color3.fromRGB(80, 160, 255),
+		Color3.fromRGB(180, 110, 255),
+	}
+	pieza(m, e, "Cuerpo", "esfera", Vector3.new(1.4, 1.3, 2.2), en(0, 0, 0.3), c)
+	pieza(m, e, "Cuello", "esfera", Vector3.new(0.7, 1.2, 0.7), en(0, 0.75, -0.6, -25, 0, 0), c)
+	pieza(m, e, "Cabeza", "esfera", Vector3.new(0.85, 0.85, 1.3), en(0, 1.35, -1.05), c)
+	pieza(m, e, "Cuerno", "cuna", Vector3.new(0.12, 0.9, 0.3), en(0, 2.05, -1.2, -15, 0, 0), Color3.fromRGB(255, 210, 40), Enum.Material.Neon)
+	ojos(m, e, 1.45, -1.62, 0.25, 0.18)
+	for _, lado in { -1, 1 } do
+		orejaPunta(m, e, lado, 0.25, 1.85, -0.85, c, 0.4)
+	end
+	-- Crin y cola de arcoiris
+	for i, color in arcoiris do
+		pieza(m, e, "Crin", "esfera", Vector3.new(0.18, 0.4, 0.35), en(0, 1.55 - i * 0.16, -0.7 + i * 0.12), color)
+		pieza(m, e, "Cola", "esfera", Vector3.new(0.16, 0.18, 0.9), en((i - 3.5) * 0.06, 0.25 - i * 0.07, 1.6 + i * 0.05, 20, 0, 0), color)
+	end
+	patas(m, e, c, 0.45, 0.75, 0.9)
+end
+
+function Especies.DragonDorado(m, e, c)
+	Especies.Dragon(m, e, c)
+	-- Corona y alas que brillan
+	for _, x in { -0.3, 0, 0.3 } do
+		pieza(m, e, "Corona", "cuna", Vector3.new(0.1, 0.4, 0.25), en(x, 1.55, -0.95, 0, 180, 0), Color3.fromRGB(255, 240, 120), Enum.Material.Neon)
+	end
+	for _, ala in m:GetChildren() do
+		if ala.Name == "Ala" then
+			ala.Material = Enum.Material.Neon
+			ala.Color = Color3.fromRGB(255, 220, 90)
+		end
+	end
+end
+
 -- Nombre arriba de la mascota, del color de su rareza
-local function cartelNombre(modelo, cuerpo, mascota, rareza, escala)
+local function cartelNombre(modelo, cuerpo, mascota, rareza, escala, nivel)
 	local cartel = Instance.new("BillboardGui")
 	cartel.Size = UDim2.fromOffset(110, 26)
 	cartel.StudsOffset = Vector3.new(0, 2 * escala, 0)
@@ -232,7 +297,7 @@ local function cartelNombre(modelo, cuerpo, mascota, rareza, escala)
 	texto.TextScaled = true
 	texto.TextColor3 = rareza.color
 	texto.TextStrokeTransparency = 0.4
-	texto.Text = mascota.nombre
+	texto.Text = (nivel or 1) > 1 and string.format("%s · Nv %d", mascota.nombre, nivel) or mascota.nombre
 	texto.Parent = cartel
 end
 
@@ -270,9 +335,9 @@ local function efectos(cuerpo, mascota)
 	end
 end
 
-local VUELAN = { Buho = true, Dragon = true, Fenix = true }
+local VUELAN = { Buho = true, Dragon = true, Fenix = true, DragonDorado = true }
 
-function ModelosMascotas.crear(mascota, rareza)
+function ModelosMascotas.crear(mascota, rareza, nivel)
 	local escala = rareza.escala
 	local modelo = Instance.new("Model")
 	modelo.Name = mascota.nombre
@@ -290,7 +355,7 @@ function ModelosMascotas.crear(mascota, rareza)
 	modelo.PrimaryPart = cuerpo
 	-- El punto de apoyo queda en el centro del cuerpo aunque el cuerpo este corrido
 	cuerpo.PivotOffset = cuerpo.CFrame:Inverse()
-	cartelNombre(modelo, cuerpo, mascota, rareza, escala)
+	cartelNombre(modelo, cuerpo, mascota, rareza, escala, nivel)
 	efectos(cuerpo, mascota)
 	if VUELAN[mascota.id] then
 		modelo:SetAttribute("Vuela", true)
