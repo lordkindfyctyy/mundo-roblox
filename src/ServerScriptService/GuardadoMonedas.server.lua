@@ -59,6 +59,10 @@ local function cargar(jugador)
 	jugador:SetAttribute("UltimoDia", guardado.UltimoDia or 0)
 	jugador:SetAttribute("Racha", guardado.Racha or 0)
 	jugador:SetAttribute("Gigantes", guardado.Gigantes or 0)
+	-- Tienda de autos: lo comprado y lo que tiene puesto (TiendaAutos.server.lua)
+	for _, atributo in { "AutoCosas", "AutoColor", "AutoRayas", "AutoRuedas", "AutoMotor" } do
+		jugador:SetAttribute(atributo, guardado[atributo] or "")
+	end
 	-- Primero las que tiene y despues las equipadas, para que el modelo se arme una sola vez
 	-- Cada mascota se guarda con su nivel (antes se guardaba true = nivel 1)
 	for id, nivel in guardado.Mascotas or {} do
@@ -108,6 +112,11 @@ local function guardar(jugador)
 		UltimoDia = jugador:GetAttribute("UltimoDia") or 0,
 		Racha = jugador:GetAttribute("Racha") or 0,
 		Gigantes = jugador:GetAttribute("Gigantes") or 0,
+		AutoCosas = jugador:GetAttribute("AutoCosas") or "",
+		AutoColor = jugador:GetAttribute("AutoColor") or "",
+		AutoRayas = jugador:GetAttribute("AutoRayas") or "",
+		AutoRuedas = jugador:GetAttribute("AutoRuedas") or "",
+		AutoMotor = jugador:GetAttribute("AutoMotor") or "",
 		Logros = {},
 		Mascotas = {},
 		MascotasEquipadas = {},

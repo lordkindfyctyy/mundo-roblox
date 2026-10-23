@@ -10,8 +10,12 @@
 -- Si queda solo y lejos de su lugar, vuelve al estacionamiento.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+
+-- Estilo del jugador que maneja (pintura, rayas, ruedas y motor de la tienda de autos)
+local SkinsAutos = require(script.Parent:WaitForChild("SkinsAutos"))
 
 local VELOCIDAD_MAXIMA = 45
 local VELOCIDAD_REVERSA = 18
@@ -179,6 +183,8 @@ local function crearAuto(color)
 		velocidad = 0,
 		rumbo = 0,
 		soloDesde = nil,
+		colorBase = color,
+		extras = {},
 	}
 end
 
@@ -204,6 +210,17 @@ for _, lugar in LUGARES do
 	-- El servidor maneja la fisica (lee el volante del jugador), asi no salta de dueño
 	auto.chasis:SetNetworkOwner(nil)
 	table.insert(autos, auto)
+
+	-- Al sentarse al volante el auto toma el estilo del jugador; al bajarse, vuelve a ser el de siempre
+	auto.volante:GetPropertyChangedSignal("Occupant"):Connect(function()
+		local ocupante = auto.volante.Occupant
+		local jugador = ocupante and Players:GetPlayerFromCharacter(ocupante.Parent)
+		if jugador then
+			SkinsAutos.aplicar(auto, jugador)
+		else
+			SkinsAutos.restaurar(auto)
+		end
+	end)
 end
 
 local function acercarA(valor, objetivo, paso)
@@ -220,8 +237,8 @@ RunService.Heartbeat:Connect(function(dt)
 		local volante = conductor and auto.volante.SteerFloat or 0
 
 		-- Velocidad: acelera hacia donde pide el acelerador, frena si se suelta
-		local objetivo = acelerador > 0 and acelerador * VELOCIDAD_MAXIMA or acelerador * VELOCIDAD_REVERSA
-		local paso = (math.abs(objetivo) < math.abs(auto.velocidad) or objetivo * auto.velocidad < 0) and FRENADO or ACELERACION
+		local objetivo = acelerador > 0 and acelerador * (auto.maxima or VELOCIDAD_MAXIMA) or acelerador * VELOCIDAD_REVERSA
+		local paso = (math.abs(objetivo) < math.abs(auto.velocidad) or objetivo * auto.velocidad < 0) and FRENADO or (auto.aceleracion or ACELERACION)
 		auto.velocidad = acercarA(auto.velocidad, objetivo, paso * dt)
 
 		-- Doblar: solo si se mueve, y al reves cuando va marcha atras
