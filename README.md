@@ -115,6 +115,10 @@ Este repo está preparado para Rojo, que sincroniza los archivos con Roblox Stud
 
 Convención de nombres: `*.server.lua` = Script, `*.client.lua` = LocalScript, `*.lua` = ModuleScript.
 
+## Publicar cambios
+
+El juego ya está publicado en Roblox. Después de cada cambio (con Rojo conectado en Studio): **File → Publish to Roblox** (Alt + P) para que llegue a los servidores.
+
 ## Para que funcione el guardado
 
 El guardado usa DataStore, así que en Studio hay que:
@@ -124,7 +128,7 @@ El guardado usa DataStore, así que en Studio hay que:
 
 ## Ideas para seguir
 
-- [ ] Publicar el juego para que lo prueben otras personas
+- [x] Publicar el juego para que lo prueben otras personas
 - [x] Ajustar la interfaz para celular (hay muchos botones y paneles)
 - [x] Mascotas con mejor aspecto
 
