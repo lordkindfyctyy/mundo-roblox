@@ -2,6 +2,8 @@
 -- y el cliente (mostrar la coleccion).
 -- Cada mascota equipada suma un bonus de monedas. Agregar una mascota = agregar una fila.
 
+local ConfigAlimentos = require(script.Parent:WaitForChild("ConfigAlimentos"))
+
 local ConfigMascotas = {}
 
 ConfigMascotas.COSTO_HUEVO = 500
@@ -58,6 +60,7 @@ function ConfigMascotas.sortear()
 end
 
 -- Multiplicador de monedas que dan las mascotas equipadas: 1 sin ninguna, 1.3 con +30%...
+-- Si las alimentaron en el pet shop, el bonus se multiplica (ConfigAlimentos).
 function ConfigMascotas.multiplicador(jugador)
 	local equipadas = jugador:FindFirstChild("MascotasEquipadas")
 	local bonus = 0
@@ -69,7 +72,7 @@ function ConfigMascotas.multiplicador(jugador)
 			end
 		end
 	end
-	return 1 + bonus
+	return 1 + bonus * ConfigAlimentos.factorActivo(jugador)
 end
 
 return ConfigMascotas

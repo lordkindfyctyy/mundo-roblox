@@ -1,5 +1,6 @@
 -- Genera la ciudad alrededor del parque: calles con lineas pintadas, veredas,
--- manzanas con edificios, faroles y sendas peatonales en las entradas del parque.
+-- manzanas con edificios, negocios (Negocios.lua) en las manzanas que dan al
+-- parque, faroles y sendas peatonales en las entradas del parque.
 -- Todo se crea por codigo dentro de la carpeta "Ciudad" en Workspace y sale
 -- siempre igual porque usa una semilla fija (SEMILLA).
 --
@@ -12,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 
 -- Donde van las calles (tambien lo usa JuegoMonedas para las monedas de la ciudad)
 local Plano = require(script.Parent:WaitForChild("PlanoCiudad"))
+local Negocios = require(script.Parent:WaitForChild("Negocios"))
 
 local SEMILLA = 2024
 local LIMITE = Plano.LIMITE
@@ -37,6 +39,20 @@ local COLOR_ASFALTO = Color3.fromRGB(55, 55, 60)
 local COLOR_VEREDA = Color3.fromRGB(190, 190, 185)
 local COLOR_LINEA = Color3.fromRGB(255, 210, 0)
 
+-- Un negocio por cada manzana que da al parque, en el lugar mas cercano a el.
+-- El primero es Lo De Lalo Pet Shop (se entra y se compra alimento).
+local NEGOCIOS = {
+	{ nombre = "Lo De Lalo Pet Shop", petShop = true },
+	{ nombre = "Heladería", color = Color3.fromRGB(240, 120, 170) },
+	{ nombre = "Pizzería", color = Color3.fromRGB(210, 50, 40) },
+	{ nombre = "Kiosco", color = Color3.fromRGB(40, 110, 220) },
+	{ nombre = "Farmacia", color = Color3.fromRGB(30, 160, 90) },
+	{ nombre = "Panadería", color = Color3.fromRGB(170, 110, 50) },
+	{ nombre = "Librería", color = Color3.fromRGB(130, 70, 190) },
+	{ nombre = "Verdulería", color = Color3.fromRGB(110, 180, 40) },
+}
+local proximoNegocio = 1
+
 local azar = Random.new(SEMILLA)
 
 local ciudad = Instance.new("Folder")
@@ -53,6 +69,7 @@ end
 local calles = carpeta("Calles")
 local veredas = carpeta("Veredas")
 local edificios = carpeta("Edificios")
+local negocios = carpeta("Negocios")
 local faroles = carpeta("Faroles")
 
 local function crearParte(padre, nombre, tamano, cframe, color, material, colisiona)
@@ -232,6 +249,18 @@ local function esParque(x1, x2, z1, z2)
 end
 
 -- Llena una manzana: vereda alrededor y edificios en fila, dejando espacio entre ellos
+-- Hacia donde mira el negocio de una manzana que da al parque (nil si no da al parque)
+local function frenteAlParque(x1, x2, z1, z2)
+	local adentroEnX = x1 > -Plano.ANILLO and x2 < Plano.ANILLO
+	local adentroEnZ = z1 > -Plano.ANILLO and z2 < Plano.ANILLO
+	if adentroEnX then
+		return Vector3.new(0, 0, z1 > 0 and -1 or 1)
+	elseif adentroEnZ then
+		return Vector3.new(x1 > 0 and -1 or 1, 0, 0)
+	end
+	return nil
+end
+
 local function manzana(x1, x2, z1, z2)
 	losa(veredas, "Vereda", x1, x2, z1, z2, VEREDA, COLOR_VEREDA, Enum.Material.Concrete)
 
@@ -246,14 +275,50 @@ local function manzana(x1, x2, z1, z2)
 	local celdaX = anchoTotal / columnas
 	local celdaZ = fondoTotal / filas
 
+	local function centroCelda(c, f)
+		return adentroX1 + celdaX * (c + 0.5), adentroZ1 + celdaZ * (f + 0.5)
+	end
+
+	-- Si da al parque, el lugar mas cercano al parque es para un negocio
+	local frente = frenteAlParque(x1, x2, z1, z2)
+	local negocio = frente and NEGOCIOS[proximoNegocio]
+	local celdaNegocio
+	if negocio then
+		proximoNegocio += 1
+		local mejor = math.huge
+		for c = 0, columnas - 1 do
+			for f = 0, filas - 1 do
+				local cx, cz = centroCelda(c, f)
+				local distancia = Vector2.new(cx, cz).Magnitude
+				if distancia < mejor then
+					mejor = distancia
+					celdaNegocio = Vector2.new(c, f)
+				end
+			end
+		end
+		local cx, cz = centroCelda(celdaNegocio.X, celdaNegocio.Y)
+		local centro = Vector3.new(cx, VEREDA, cz)
+		local base = CFrame.lookAt(centro, centro + frente)
+		-- ancho: a lo largo de la calle; fondo: hacia adentro de la manzana
+		local ancho, fondo = celdaX - 2, celdaZ - 2
+		if frente.X ~= 0 then
+			ancho, fondo = fondo, ancho
+		end
+		if negocio.petShop then
+			Negocios.petShop(negocios, base, ancho, fondo)
+		else
+			Negocios.comun(negocios, base, ancho, fondo, negocio.nombre, negocio.color)
+		end
+	end
+
 	for c = 0, columnas - 1 do
 		for f = 0, filas - 1 do
+			local esNegocio = celdaNegocio and celdaNegocio.X == c and celdaNegocio.Y == f
 			-- Algunos lugares quedan libres (plazoletas) para que no sea todo igual
-			if azar:NextNumber() < 0.85 then
+			if not esNegocio and azar:NextNumber() < 0.85 then
 				local ancho = math.min(celdaX - 3, azar:NextNumber(12, 20))
 				local fondo = math.min(celdaZ - 3, azar:NextNumber(12, 20))
-				local cx = adentroX1 + celdaX * (c + 0.5)
-				local cz = adentroZ1 + celdaZ * (f + 0.5)
+				local cx, cz = centroCelda(c, f)
 				local pisos = azar:NextInteger(3, 10)
 				-- Los mas altos van en las manzanas de afuera, para que se vea el horizonte
 				if math.max(math.abs(cx), math.abs(cz)) > 100 then

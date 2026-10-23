@@ -27,6 +27,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 - Con el botón *Mascotas* (borde derecho) abrís huevos de 500 monedas y conseguís mascotas de 5 rarezas (Común a Legendaria). Podés llevar hasta 3 equipadas: te siguen por el mapa y suman un bonus de monedas (de +5% a +60% cada una).
 - La interfaz se adapta a la pantalla: en celular todo se achica, los botones de los costados suben para no tapar el joystick ni el botón de saltar, y cada panel tiene una **X** para cerrarlo (se abre uno a la vez).
 - Alrededor del parque hay una **ciudad** para recorrer: calles con líneas pintadas, veredas, edificios de distintas alturas y faroles. Se sale del parque por las entradas del medio de cada lado del cerco. Por las calles andan **autos** por la mano derecha; frenan si tienen a alguien adelante, así que nunca te atropellan, y respetan los **semáforos** de cada cruce (verde 8 s, amarillo 2 s y un segundo todo en rojo antes de darle paso a la otra calle).
+- Frente al parque hay **negocios** con cartel (heladería, pizzería, kiosco, farmacia, panadería, librería y verdulería) y **Lo De Lalo Pet Shop**, al oeste: se puede entrar y en el mostrador comprar alimento para las mascotas. Mientras dura, el bonus de monedas de las mascotas equipadas se multiplica (Snack x1,5 por 1 min, Balanceado x2 por 2 min, Premium x3 por 3 min) y un cartel abajo muestra cuánto falta.
 - En el fondo del mapa hay un **ranking global** con los 10 jugadores que más monedas recolectaron en total.
 
 ## Contenido
@@ -38,6 +39,9 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ServerScriptService/PlanoCiudad.lua` | Dónde van las calles; lo usan la ciudad y las monedas de la ciudad |
 | `src/ServerScriptService/Autos.server.lua` | Autos que recorren las calles, frenan ante jugadores y otros autos y ceden el paso en los cruces |
 | `src/ServerScriptService/Semaforos.server.lua` | Semáforos en las esquinas de los 16 cruces y el ciclo de luces que siguen los autos |
+| `src/ServerScriptService/Negocios.lua` | Arma los negocios con cartel y Lo De Lalo Pet Shop (adentro, la compra de alimentos) |
+| `src/ReplicatedStorage/ConfigAlimentos.lua` | Alimentos del pet shop: precio, multiplicador y duración |
+| `src/StarterPlayerScripts/Alimentos.client.lua` | Aviso de cada compra y cuenta regresiva del alimento |
 | `src/ServerScriptService/Ciudad.server.lua` | Genera la ciudad alrededor del parque: calles, veredas, 12 manzanas con edificios, faroles y sendas peatonales |
 | `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
 | `src/ServerScriptService/Mascotas.server.lua` | Huevos, equipar mascotas y modelos que siguen al jugador |
