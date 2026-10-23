@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ConfigMejoras = require(ReplicatedStorage:WaitForChild("ConfigMejoras"))
 local ConfigRenacer = require(ReplicatedStorage:WaitForChild("ConfigRenacer"))
+local Interfaz = require(ReplicatedStorage:WaitForChild("Interfaz"))
 local comprar = ReplicatedStorage:WaitForChild("ComprarMejora")
 local renacer = ReplicatedStorage:WaitForChild("Renacer")
 
@@ -26,8 +27,6 @@ end
 
 -- Boton para abrir/cerrar
 local botonAbrir = Instance.new("TextButton")
-botonAbrir.AnchorPoint = Vector2.new(0, 0.5)
-botonAbrir.Position = UDim2.new(0, 20, 0.5, 0)
 botonAbrir.Size = UDim2.fromOffset(120, 46)
 botonAbrir.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 botonAbrir.Font = Enum.Font.GothamBold
@@ -36,6 +35,7 @@ botonAbrir.TextColor3 = Color3.new(1, 1, 1)
 botonAbrir.Text = "Tienda"
 botonAbrir.Parent = pantalla
 redondear(botonAbrir, 10)
+Interfaz.botonLateral(botonAbrir, "izquierda", 1, 4)
 
 -- Ventana de la tienda
 local ventana = Instance.new("Frame")
@@ -46,6 +46,7 @@ ventana.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 ventana.Visible = false
 ventana.Parent = pantalla
 redondear(ventana, 14)
+Interfaz.panel(ventana, 420, 520)
 
 local titulo = Instance.new("TextLabel")
 titulo.Size = UDim2.new(1, 0, 0, 50)
@@ -78,7 +79,7 @@ lista.CanvasSize = UDim2.fromOffset(0, #ConfigMejoras.Lista * 80)
 lista.Parent = ventana
 
 botonAbrir.Activated:Connect(function()
-	ventana.Visible = not ventana.Visible
+	Interfaz.alternar(ventana)
 	mensaje.Text = ""
 end)
 

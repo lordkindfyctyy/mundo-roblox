@@ -3,7 +3,10 @@
 -- Los IDs son de musica publica de Roblox (Toolbox). Si alguno no carga, se salta al siguiente.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
+
+local Interfaz = require(ReplicatedStorage:WaitForChild("Interfaz"))
 
 local jugador = Players.LocalPlayer
 
@@ -33,8 +36,6 @@ pantalla.ResetOnSpawn = false
 pantalla.Parent = jugador:WaitForChild("PlayerGui")
 
 local boton = Instance.new("TextButton")
-boton.AnchorPoint = Vector2.new(0, 0.5)
-boton.Position = UDim2.new(0, 20, 0.5, -56)
 boton.Size = UDim2.fromOffset(120, 46)
 boton.Font = Enum.Font.GothamBold
 boton.TextSize = 18
@@ -44,6 +45,7 @@ boton.Parent = pantalla
 local esquinas = Instance.new("UICorner")
 esquinas.CornerRadius = UDim.new(0, 10)
 esquinas.Parent = boton
+Interfaz.botonLateral(boton, "izquierda", 0, 4)
 
 local function actualizarBoton()
 	if activa then

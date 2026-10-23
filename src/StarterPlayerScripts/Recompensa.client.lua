@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local ConfigRecompensa = require(ReplicatedStorage:WaitForChild("ConfigRecompensa"))
+local Interfaz = require(ReplicatedStorage:WaitForChild("Interfaz"))
 local reclamar = ReplicatedStorage:WaitForChild("ReclamarRecompensa")
 
 local jugador = Players.LocalPlayer
@@ -37,14 +38,13 @@ end
 
 -- Boton debajo del de la tienda
 local botonRegalo = Instance.new("TextButton")
-botonRegalo.AnchorPoint = Vector2.new(0, 0.5)
-botonRegalo.Position = UDim2.new(0, 20, 0.5, 56)
 botonRegalo.Size = UDim2.fromOffset(120, 46)
 botonRegalo.Font = Enum.Font.GothamBold
 botonRegalo.TextSize = 20
 botonRegalo.TextColor3 = Color3.new(1, 1, 1)
 botonRegalo.Parent = pantalla
 redondear(botonRegalo, 10)
+Interfaz.botonLateral(botonRegalo, "izquierda", 2, 4)
 
 -- Panel
 local panel = Instance.new("Frame")
@@ -55,6 +55,7 @@ panel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 panel.Visible = false
 panel.Parent = pantalla
 redondear(panel, 14)
+Interfaz.panel(panel, 460, 290)
 
 local titulo = nuevoTexto(panel, 26, Enum.Font.GothamBold, Color3.fromRGB(255, 205, 0))
 titulo.Size = UDim2.new(1, 0, 0, 50)
@@ -161,7 +162,7 @@ local function actualizar()
 end
 
 botonRegalo.Activated:Connect(function()
-	panel.Visible = not panel.Visible
+	Interfaz.alternar(panel)
 	mensaje.Text = ""
 	actualizar()
 end)
@@ -181,6 +182,7 @@ local function alCargar()
 	actualizar()
 	local _, _, disponible = estado()
 	if disponible then
+		Interfaz.cerrarPaneles(panel)
 		panel.Visible = true
 	end
 end

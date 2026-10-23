@@ -2,7 +2,10 @@
 -- Se lee del leaderstats que crea JuegoMonedas.server.lua.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+
+local Interfaz = require(ReplicatedStorage:WaitForChild("Interfaz"))
 
 local jugador = Players.LocalPlayer
 
@@ -18,6 +21,10 @@ marco.Size = UDim2.fromOffset(200, 50)
 marco.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 marco.BackgroundTransparency = 0.2
 marco.Parent = pantalla
+Interfaz.escalar(marco)
+Interfaz.alCambiarPantalla(function()
+	marco.Position = UDim2.new(0.5, 0, 0, 20 * Interfaz.escala())
+end)
 
 local esquinas = Instance.new("UICorner")
 esquinas.CornerRadius = UDim.new(0, 12)

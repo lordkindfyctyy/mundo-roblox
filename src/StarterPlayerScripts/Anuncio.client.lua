@@ -2,9 +2,12 @@
 -- Lee los atributos EventoNombre y EventoFin que pone Eventos.server.lua en Workspace.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+
+local Interfaz = require(ReplicatedStorage:WaitForChild("Interfaz"))
 
 local jugador = Players.LocalPlayer
 
@@ -15,11 +18,14 @@ pantalla.Parent = jugador:WaitForChild("PlayerGui")
 
 local marco = Instance.new("Frame")
 marco.AnchorPoint = Vector2.new(0.5, 0)
-marco.Position = UDim2.new(0.5, 0, 0, 80) -- justo debajo del marcador de monedas
 marco.Size = UDim2.fromOffset(440, 56)
 marco.BackgroundColor3 = Color3.fromRGB(255, 205, 0)
 marco.Visible = false
 marco.Parent = pantalla
+Interfaz.escalar(marco)
+Interfaz.alCambiarPantalla(function()
+	marco.Position = UDim2.new(0.5, 0, 0, 80 * Interfaz.escala()) -- justo debajo del marcador de monedas
+end)
 
 local esquinas = Instance.new("UICorner")
 esquinas.CornerRadius = UDim.new(0, 12)

@@ -5,6 +5,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ConfigMascotas = require(ReplicatedStorage:WaitForChild("ConfigMascotas"))
+local Interfaz = require(ReplicatedStorage:WaitForChild("Interfaz"))
 local abrirHuevo = ReplicatedStorage:WaitForChild("AbrirHuevo")
 local equipar = ReplicatedStorage:WaitForChild("EquiparMascota")
 
@@ -51,11 +52,10 @@ end
 
 -- Boton para abrir el panel, a la derecha de la pantalla
 local botonAbrir = nuevoBoton(pantalla, 20)
-botonAbrir.AnchorPoint = Vector2.new(1, 0.5)
-botonAbrir.Position = UDim2.new(1, -20, 0.5, 0)
 botonAbrir.Size = UDim2.fromOffset(120, 46)
 botonAbrir.BackgroundColor3 = Color3.fromRGB(230, 110, 150)
 botonAbrir.Text = "Mascotas"
+Interfaz.botonLateral(botonAbrir, "derecha", 0, 1)
 
 -- Panel
 local panel = Instance.new("Frame")
@@ -66,6 +66,7 @@ panel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 panel.Visible = false
 panel.Parent = pantalla
 redondear(panel, 14)
+Interfaz.panel(panel, 460, 500)
 
 local titulo = nuevoTexto(panel, 26, Enum.Font.GothamBold, Color3.fromRGB(255, 205, 0))
 titulo.Size = UDim2.new(1, 0, 0, 44)
@@ -192,7 +193,7 @@ botonHuevo.Activated:Connect(function()
 end)
 
 botonAbrir.Activated:Connect(function()
-	panel.Visible = not panel.Visible
+	Interfaz.alternar(panel)
 	resultado.Text = ""
 	actualizar()
 end)
