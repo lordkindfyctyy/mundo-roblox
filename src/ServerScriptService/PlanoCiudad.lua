@@ -40,6 +40,28 @@ function Plano.puntoEnCalle(azar)
 	return Vector3.new(centro, 0, largo)
 end
 
+-- La Playa (Playa.server.lua): al este de la ciudad, pasando el arco que hay al
+-- final de la avenida (x = LIMITE, z = 0). Arena de ARENA_X1 a ARENA_X2 y el mar
+-- despues. La entrada es libre.
+-- La playa esta elevada (el agua queda arriba del piso del lugar): desde la entrada
+-- se sube por escalones hasta la arena.
+Plano.PLAYA = {
+	ESCALONES_X1 = 160, -- desde aca suben los escalones
+	ARENA_X1 = 176, -- desde aca la arena es plana
+	ARENA_X2 = 262,
+	MAR_X2 = 440,
+	Z = 130, -- de -Z a +Z
+	PUERTA = 7, -- medio ancho de la entrada
+	ALTO = 5.6, -- altura de la arena
+	NIVEL_AGUA = 5,
+}
+
+-- Un punto al azar sobre la arena (a la altura de la arena), lejos del agua y de los bordes
+function Plano.puntoEnPlaya(azar)
+	local p = Plano.PLAYA
+	return Vector3.new(azar:NextNumber(p.ARENA_X1 + 4, p.ARENA_X2 - 8), p.ALTO, azar:NextNumber(-p.Z + 8, p.Z - 8))
+end
+
 -- Los cruces de la cuadricula (donde hay semaforos): centro de cada uno, y = 0
 function Plano.cruces()
 	local lista = {}

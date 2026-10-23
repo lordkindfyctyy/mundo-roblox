@@ -3,7 +3,8 @@
 -- Hay monedas doradas (1 punto), azules (5) y una gigante muy rara (25).
 -- Con la mejora "Iman" las monedas cercanas viajan hacia el jugador.
 -- Eventos.server.lua puede pedir monedas extra (lluvia) y duplicar los puntos (hora dorada).
--- Hay monedas en el parque y sobre las calles de la ciudad (PlanoCiudad).
+-- Hay monedas en el parque, sobre las calles de la ciudad y en la Playa (PlanoCiudad),
+-- donde valen el triple.
 
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
@@ -20,6 +21,8 @@ local PlanoCiudad = require(script.Parent:WaitForChild("PlanoCiudad"))
 
 local CANTIDAD_MONEDAS = 20 -- en el parque
 local CANTIDAD_MONEDAS_CIUDAD = 40 -- sobre las calles de la ciudad
+local CANTIDAD_MONEDAS_PLAYA = 25 -- en la arena de la Playa (hay que desbloquearla)
+local VALOR_PLAYA = 3 -- las de la Playa valen el triple
 local TIEMPO_RESPAWN = 5
 local AREA = 80 -- las monedas aparecen dentro de un cuadrado de AREA x AREA
 local VELOCIDAD_GIRO = math.rad(120) -- grados por segundo
@@ -181,7 +184,7 @@ crearMoneda = function(temporal, zona)
 	moneda.Material = Enum.Material.Neon
 	moneda.Anchored = true
 	moneda.CanCollide = false
-	moneda:SetAttribute("Valor", tipo.valor)
+	moneda:SetAttribute("Valor", tipo.valor * (zona == "playa" and VALOR_PLAYA or 1))
 	moneda:SetAttribute("Sonido", tipo.sonido)
 	moneda:SetAttribute("Recogida", false)
 	moneda:SetAttribute("Temporal", temporal == true)
@@ -191,6 +194,8 @@ crearMoneda = function(temporal, zona)
 	local suelo
 	if zona == "ciudad" then
 		suelo = PlanoCiudad.puntoEnCalle(azarCiudad)
+	elseif zona == "playa" then
+		suelo = PlanoCiudad.puntoEnPlaya(azarCiudad)
 	else
 		suelo = Vector3.new(math.random(-AREA / 2, AREA / 2), 0, math.random(-AREA / 2, AREA / 2))
 	end
@@ -269,6 +274,9 @@ for _ = 1, CANTIDAD_MONEDAS do
 end
 for _ = 1, CANTIDAD_MONEDAS_CIUDAD do
 	crearMoneda(false, "ciudad")
+end
+for _ = 1, CANTIDAD_MONEDAS_PLAYA do
+	crearMoneda(false, "playa")
 end
 
 -- Eventos.server.lua dispara esto para pedir una lluvia de monedas extra

@@ -357,7 +357,11 @@ end
 pared(0, -LIMITE - 1, LIMITE * 2 + 4, 2)
 pared(0, LIMITE + 1, LIMITE * 2 + 4, 2)
 pared(-LIMITE - 1, 0, 2, LIMITE * 2 + 4)
-pared(LIMITE + 1, 0, 2, LIMITE * 2 + 4)
+-- Al este queda un hueco al final de la avenida: la entrada a la Playa (Playa.server.lua)
+local puerta = Plano.PLAYA.PUERTA
+local largoTramo = LIMITE + 2 - puerta
+pared(LIMITE + 1, -(puerta + largoTramo / 2), 2, largoTramo)
+pared(LIMITE + 1, puerta + largoTramo / 2, 2, largoTramo)
 
 -- Listo: las misiones ya pueden usar los lugares de los negocios y la Torre
 Workspace:SetAttribute("CiudadLista", true)
