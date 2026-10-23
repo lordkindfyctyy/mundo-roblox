@@ -25,6 +25,8 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 - Hay 12 **logros** (botón *Logros* debajo de Regalo) con premio en monedas: juntar monedas, cazar gigantes, comprar mejoras, renacer, mantener la racha diaria… El panel muestra el progreso de cada uno y un aviso salta al desbloquearlos.
 - Suena **música de fondo** (5 temas alegres en orden al azar). El botón *Música* arriba de la tienda la silencia solo para vos.
 - Con el botón *Mascotas* (borde derecho) abrís huevos de 500 monedas y conseguís mascotas de 5 rarezas (Común a Legendaria). Podés llevar hasta 3 equipadas: te siguen por el mapa y suman un bonus de monedas (de +5% a +60% cada una).
+- La interfaz se adapta a la pantalla: en celular todo se achica, los botones de los costados suben para no tapar el joystick ni el botón de saltar, y cada panel tiene una **X** para cerrarlo (se abre uno a la vez).
+- Alrededor del parque hay una **ciudad** para recorrer: calles con líneas pintadas, veredas, edificios de distintas alturas y faroles. Se sale del parque por las entradas del medio de cada lado del cerco.
 - En el fondo del mapa hay un **ranking global** con los 10 jugadores que más monedas recolectaron en total.
 
 ## Contenido
@@ -32,7 +34,8 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | Archivo | Qué hace |
 |---|---|
 | `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, las hace girar, suma los puntos y atrae monedas con el imán |
-| `src/ServerScriptService/Mapa.server.lua` | Genera el mapa: césped, cerco, árboles, flores y cartel de bienvenida |
+| `src/ServerScriptService/Mapa.server.lua` | Genera el parque del centro: césped, cerco con 4 entradas, árboles, flores y cartel de bienvenida |
+| `src/ServerScriptService/Ciudad.server.lua` | Genera la ciudad alrededor del parque: calles, veredas, 12 manzanas con edificios, faroles y sendas peatonales |
 | `src/ServerScriptService/Eventos.server.lua` | Elige y corre los eventos aleatorios (hora dorada, lluvia de monedas) |
 | `src/ServerScriptService/Mascotas.server.lua` | Huevos, equipar mascotas y modelos que siguen al jugador |
 | `src/ServerScriptService/Logros.server.lua` | Detecta los logros cumplidos, paga el premio y avisa |
@@ -41,6 +44,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ServerScriptService/Ranking.server.lua` | Cartel con el ranking global (top 10 de monedas recolectadas en total) |
 | `src/ServerScriptService/TiendaMejoras.server.lua` | Valida las compras y aplica velocidad y salto |
 | `src/ServerScriptService/GuardadoMonedas.server.lua` | Guarda y carga monedas y mejoras |
+| `src/ReplicatedStorage/Interfaz.lua` | Ayudas de interfaz: escala según la pantalla, botones laterales para compu/celular y un panel abierto a la vez |
 | `src/ReplicatedStorage/ConfigMejoras.lua` | Lista de mejoras (agregar una = agregar una fila) |
 | `src/ReplicatedStorage/ConfigRenacer.lua` | Costo y bonus de Renacer |
 | `src/ReplicatedStorage/ConfigRecompensa.lua` | Premio base, largo del ciclo y fórmulas de la recompensa diaria |
@@ -78,7 +82,7 @@ Este repo está preparado para Rojo, que sincroniza los archivos con Roblox Stud
    ```
 2. En Studio, abrí un lugar nuevo (Baseplate), andá a la pestaña **Plugins → Rojo** y tocá **Connect**.
 3. Editá los archivos `.lua` con tu editor (por ejemplo VS Code) y los cambios aparecen solos en Studio.
-4. Dale **Play** para probar.
+4. Dale **Play** para probar. Para ver cómo queda en un celular: pestaña **Test → Device** y elegí un teléfono.
 
 ### Estructura
 
@@ -100,7 +104,7 @@ El guardado usa DataStore, así que en Studio hay que:
 ## Ideas para seguir
 
 - [ ] Publicar el juego para que lo prueben otras personas
-- [ ] Ajustar la interfaz para celular (hay muchos botones y paneles)
+- [x] Ajustar la interfaz para celular (hay muchos botones y paneles)
 - [ ] Mascotas con mejor aspecto (modelos del Toolbox)
 
 

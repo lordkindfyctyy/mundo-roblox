@@ -1,4 +1,5 @@
--- Genera el mapa del juego: cesped, cerco, arboles, flores y un cartel de bienvenida.
+-- Genera el parque del centro: cesped, cerco con cuatro entradas, arboles,
+-- flores y un cartel de bienvenida. Alrededor esta la ciudad (Ciudad.server.lua).
 -- Todo se crea por codigo y queda dentro de la carpeta "Mapa" en Workspace.
 -- El mapa es siempre igual porque usa una semilla fija (SEMILLA).
 
@@ -10,6 +11,7 @@ local GROSOR = 0.4 -- grosor del cesped; su cara de arriba queda en y = GROSOR
 local SEMILLA = 12345
 local CANTIDAD_ARBOLES = 16
 local CANTIDAD_FLORES = 50
+local ENTRADA = 12 -- ancho de la entrada en el medio de cada lado del cerco (la ciudad esta en Ciudad.server.lua)
 local COLORES_FLORES = {
 	Color3.fromRGB(255, 90, 130),
 	Color3.fromRGB(255, 255, 255),
@@ -54,12 +56,17 @@ local function crearCerco()
 	local altura = 3
 	local y = GROSOR + altura / 2
 	local color = Color3.fromRGB(120, 85, 55)
-	local largo = TAMANO + 2
+	-- Cada lado son dos tramos con una entrada en el medio hacia la ciudad
+	local tramo = (TAMANO + 2 - ENTRADA) / 2
+	local centroTramo = ENTRADA / 2 + tramo / 2
 
-	crearParte("Cerco", Vector3.new(largo, altura, 1), CFrame.new(0, y, -mitad - 0.5), color, Enum.Material.Wood)
-	crearParte("Cerco", Vector3.new(largo, altura, 1), CFrame.new(0, y, mitad + 0.5), color, Enum.Material.Wood)
-	crearParte("Cerco", Vector3.new(1, altura, largo), CFrame.new(-mitad - 0.5, y, 0), color, Enum.Material.Wood)
-	crearParte("Cerco", Vector3.new(1, altura, largo), CFrame.new(mitad + 0.5, y, 0), color, Enum.Material.Wood)
+	for _, signo in { -1, 1 } do
+		local borde = (mitad + 0.5) * signo
+		crearParte("Cerco", Vector3.new(tramo, altura, 1), CFrame.new(-centroTramo, y, borde), color, Enum.Material.Wood)
+		crearParte("Cerco", Vector3.new(tramo, altura, 1), CFrame.new(centroTramo, y, borde), color, Enum.Material.Wood)
+		crearParte("Cerco", Vector3.new(1, altura, tramo), CFrame.new(borde, y, -centroTramo), color, Enum.Material.Wood)
+		crearParte("Cerco", Vector3.new(1, altura, tramo), CFrame.new(borde, y, centroTramo), color, Enum.Material.Wood)
+	end
 end
 
 -- Los arboles van en la franja de afuera para no tapar a las monedas
@@ -165,9 +172,15 @@ local function ocupaCartelRanking(posicion)
 	return math.abs(posicion.X) < 20 and posicion.Z > 38
 end
 
+-- Y el camino de cada entrada del cerco
+local function tapaEntrada(posicion)
+	local margen = ENTRADA / 2 + 3
+	return math.abs(posicion.X) < margen or math.abs(posicion.Z) < margen
+end
+
 for _ = 1, CANTIDAD_ARBOLES do
 	local posicion = posicionEnBorde()
-	while ocupaCartelRanking(posicion) do
+	while ocupaCartelRanking(posicion) or tapaEntrada(posicion) do
 		posicion = posicionEnBorde()
 	end
 	crearArbol(posicion)
