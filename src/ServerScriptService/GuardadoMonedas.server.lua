@@ -89,6 +89,10 @@ local function cargar(jugador)
 	-- Tienda de golf: palos y pelotas comprados, y la pelota que usa (TiendaGolf.server.lua)
 	jugador:SetAttribute("GolfCosas", guardado.GolfCosas or "")
 	jugador:SetAttribute("GolfBola", guardado.GolfBola or "")
+	-- Pesca: cañas compradas, peces atrapados y total (Pesca.server.lua)
+	jugador:SetAttribute("PescaCanas", guardado.PescaCanas or "")
+	jugador:SetAttribute("PescaPeces", guardado.PescaPeces or "")
+	jugador:SetAttribute("PescaTotal", guardado.PescaTotal or 0)
 	-- Primero las que tiene y despues las equipadas, para que el modelo se arme una sola vez
 	-- Cada mascota se guarda con su nivel (antes se guardaba true = nivel 1)
 	for id, nivel in guardado.Mascotas or {} do
@@ -153,6 +157,9 @@ local function guardar(jugador)
 		GolfHoyosEnUno = jugador:GetAttribute("GolfHoyosEnUno") or 0,
 		GolfCosas = jugador:GetAttribute("GolfCosas") or "",
 		GolfBola = jugador:GetAttribute("GolfBola") or "",
+		PescaCanas = jugador:GetAttribute("PescaCanas") or "",
+		PescaPeces = jugador:GetAttribute("PescaPeces") or "",
+		PescaTotal = jugador:GetAttribute("PescaTotal") or 0,
 		Logros = {},
 		Mascotas = {},
 		MascotasEquipadas = {},

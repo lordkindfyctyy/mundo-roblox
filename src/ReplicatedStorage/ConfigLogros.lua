@@ -5,6 +5,7 @@
 
 local ConfigMejoras = require(script.Parent:WaitForChild("ConfigMejoras"))
 local ConfigGolf = require(script.Parent:WaitForChild("ConfigGolf"))
+local ConfigPesca = require(script.Parent:WaitForChild("ConfigPesca"))
 
 local function estadistica(jugador, nombre)
 	local leaderstats = jugador:FindFirstChild("leaderstats")
@@ -206,6 +207,46 @@ ConfigLogros.Lista = {
 				end
 			end
 			return 0
+		end,
+	},
+	{
+		id = "Pescador",
+		nombre = "Pescador",
+		descripcion = "Atrapá 10 peces",
+		meta = 10,
+		premio = 150,
+		valor = function(jugador)
+			return jugador:GetAttribute("PescaTotal") or 0
+		end,
+	},
+	{
+		id = "LoboDeMar",
+		nombre = "Lobo de mar",
+		descripcion = "Atrapá 100 peces",
+		meta = 100,
+		premio = 600,
+		valor = function(jugador)
+			return jugador:GetAttribute("PescaTotal") or 0
+		end,
+	},
+	{
+		id = "AlbumDePeces",
+		nombre = "Álbum de peces",
+		descripcion = "Atrapá todas las especies de peces",
+		meta = #ConfigPesca.Peces,
+		premio = 1000,
+		valor = function(jugador)
+			return ConfigPesca.especies(jugador:GetAttribute("PescaPeces"))
+		end,
+	},
+	{
+		id = "PezDorado",
+		nombre = "El pez dorado",
+		descripcion = "Atrapá el legendario pez dorado",
+		meta = 1,
+		premio = 500,
+		valor = function(jugador)
+			return ConfigPesca.conteos(jugador:GetAttribute("PescaPeces")).dorado or 0
 		end,
 	},
 }
