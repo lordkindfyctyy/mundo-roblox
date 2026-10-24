@@ -4,12 +4,13 @@
 -- En los cruces, los que van a lo largo de X le dan paso a los que van a lo largo
 -- de Z (si no, dos autos podrian quedarse esperandose para siempre).
 -- Al llegar al borde de la ciudad vuelven a entrar por el otro lado.
+-- Hay sedanes, taxis, deportivos, camionetas y algun tractor (ModelosAutos.lua).
 
-local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local ModelosAutos = require(script.Parent:WaitForChild("ModelosAutos"))
 local Plano = require(script.Parent:WaitForChild("PlanoCiudad"))
 
 local SEMILLA = 777
@@ -19,7 +20,10 @@ local CARRIL = 4 -- distancia del centro de la calle al centro del carril
 local DISTANCIA_FRENO = 14 -- frena si hay algo adelante a esta distancia o menos
 local ANCHO_REVISION = 3.5 -- cuanto mira para los costados al buscar algo adelante
 local SUELO = 0.3 -- altura del asfalto (Ciudad.server.lua)
-local LARGO, ANCHO, ALTO = 8, 4.4, 2
+local LARGO = 10 -- el mas largo (la camioneta), para calcular las distancias
+
+-- Que tipos salen y cuantas veces mas que otros
+local TIPOS = { "sedan", "sedan", "sedan", "taxi", "taxi", "deportivo", "deportivo", "camioneta", "camioneta", "camioneta", "tractor" }
 
 local COLORES = {
 	Color3.fromRGB(220, 40, 40),
@@ -38,79 +42,9 @@ local carpeta = Instance.new("Folder")
 carpeta.Name = "Autos"
 carpeta.Parent = Workspace
 
-local function parte(modelo, nombre, tamano, cframe, color, material, forma)
-	local p = Instance.new("Part")
-	p.Name = nombre
-	p.Size = tamano
-	p.CFrame = cframe
-	p.Color = color
-	p.Material = material or Enum.Material.SmoothPlastic
-	p.Shape = forma or Enum.PartType.Block
-	p.Anchored = true
-	p.CanCollide = true
-	p.TopSurface = Enum.SurfaceType.Smooth
-	p.BottomSurface = Enum.SurfaceType.Smooth
-	p.Parent = modelo
-	return p
-end
-
--- Arma un auto mirando hacia -Z (el frente de Roblox) con centro en el origen
+-- El modelo (mirando hacia -Z, con el piso en el origen) lo arma ModelosAutos.lua
 local function crearAuto(color)
-	local modelo = Instance.new("Model")
-	modelo.Name = "Auto"
-
-	local altoRueda = 1.6
-	local cuerpo = parte(
-		modelo,
-		"Cuerpo",
-		Vector3.new(ANCHO, ALTO, LARGO),
-		CFrame.new(0, altoRueda / 2 + ALTO / 2, 0),
-		color,
-		Enum.Material.SmoothPlastic
-	)
-	modelo.PrimaryPart = cuerpo
-	-- El punto de apoyo del auto queda en el piso, entre las ruedas
-	cuerpo.PivotOffset = CFrame.new(0, -(altoRueda / 2 + ALTO / 2), 0)
-
-	parte(
-		modelo,
-		"Cabina",
-		Vector3.new(ANCHO - 0.6, 1.6, LARGO * 0.5),
-		CFrame.new(0, altoRueda / 2 + ALTO + 0.8, 0.4),
-		Color3.fromRGB(150, 200, 230),
-		Enum.Material.Glass
-	)
-
-	-- Ruedas: el cilindro mide su largo en X, que es justo el eje de la rueda
-	for _, x in { -ANCHO / 2, ANCHO / 2 } do
-		for _, z in { -LARGO / 2 + 1.5, LARGO / 2 - 1.5 } do
-			parte(
-				modelo,
-				"Rueda",
-				Vector3.new(0.8, altoRueda, altoRueda),
-				CFrame.new(x, altoRueda / 2, z),
-				Color3.fromRGB(25, 25, 25),
-				Enum.Material.SmoothPlastic,
-				Enum.PartType.Cylinder
-			)
-		end
-	end
-
-	-- Faros adelante (-Z) y luces de freno atras (+Z)
-	for _, x in { -ANCHO / 2 + 0.7, ANCHO / 2 - 0.7 } do
-		local faro = parte(modelo, "Faro", Vector3.new(0.8, 0.5, 0.2), CFrame.new(x, altoRueda / 2 + ALTO * 0.7, -LARGO / 2 - 0.1), Color3.fromRGB(255, 250, 210), Enum.Material.Neon)
-		-- De noche alumbran la calle (DiaNoche.server.lua)
-		local luz = Instance.new("SpotLight")
-		luz.Face = Enum.NormalId.Front
-		luz.Range = 28
-		luz.Angle = 70
-		luz.Brightness = 2
-		luz.Color = Color3.fromRGB(255, 245, 210)
-		luz.Parent = faro
-		CollectionService:AddTag(faro, "LuzDeNoche")
-		parte(modelo, "LuzFreno", Vector3.new(0.8, 0.5, 0.2), CFrame.new(x, altoRueda / 2 + ALTO * 0.7, LARGO / 2 + 0.1), Color3.fromRGB(120, 0, 0), Enum.Material.SmoothPlastic)
-	end
-
+	local modelo = ModelosAutos.crear(TIPOS[azar:NextInteger(1, #TIPOS)], color)
 	modelo.Parent = carpeta
 	return modelo
 end
