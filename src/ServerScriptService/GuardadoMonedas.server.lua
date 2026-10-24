@@ -68,6 +68,7 @@ local function cargar(jugador)
 	jugador:SetAttribute("UltimoDia", guardado.UltimoDia or 0)
 	jugador:SetAttribute("Racha", guardado.Racha or 0)
 	jugador:SetAttribute("Gigantes", guardado.Gigantes or 0)
+	jugador:SetAttribute("Jefes", guardado.Jefes or 0) -- veces que derroto al Monstruo de Monedas (Jefe.server.lua)
 	-- Tienda de autos: lo comprado y lo que tiene puesto (TiendaAutos.server.lua)
 	for _, atributo in { "AutoCosas", "AutoColor", "AutoRayas", "AutoRuedas", "AutoMotor" } do
 		jugador:SetAttribute(atributo, guardado[atributo] or "")
@@ -124,6 +125,7 @@ local function guardar(jugador)
 		UltimoDia = jugador:GetAttribute("UltimoDia") or 0,
 		Racha = jugador:GetAttribute("Racha") or 0,
 		Gigantes = jugador:GetAttribute("Gigantes") or 0,
+		Jefes = jugador:GetAttribute("Jefes") or 0,
 		AutoCosas = jugador:GetAttribute("AutoCosas") or "",
 		AutoColor = jugador:GetAttribute("AutoColor") or "",
 		AutoRayas = jugador:GetAttribute("AutoRayas") or "",

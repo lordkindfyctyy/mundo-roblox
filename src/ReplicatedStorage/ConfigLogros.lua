@@ -98,6 +98,26 @@ ConfigLogros.Lista = {
 		end,
 	},
 	{
+		id = "Vencedor",
+		nombre = "Vencedor",
+		descripcion = "Derrotá al Monstruo de Monedas",
+		meta = 1,
+		premio = 150,
+		valor = function(jugador)
+			return jugador:GetAttribute("Jefes") or 0
+		end,
+	},
+	{
+		id = "Heroe",
+		nombre = "Héroe de Benja City",
+		descripcion = "Derrotá al Monstruo de Monedas 10 veces",
+		meta = 10,
+		premio = 600,
+		valor = function(jugador)
+			return jugador:GetAttribute("Jefes") or 0
+		end,
+	},
+	{
 		id = "DeCompras",
 		nombre = "De compras",
 		descripcion = "Comprá tu primera mejora",
