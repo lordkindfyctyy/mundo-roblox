@@ -67,7 +67,7 @@ end
 -- en z = 0 y terrenos a los dos lados, con el frente hacia la calle.
 Plano.BARRIO = {
 	X_CERCA = -160, -- donde empieza (junto a la pared de la ciudad)
-	X_LEJOS = -310, -- donde termina
+	X_LEJOS = -420, -- donde termina
 	Z = 75, -- de -Z a +Z
 	PUERTA = 7, -- medio ancho de la entrada
 	MEDIO_ANCHO_CALLE = 6,
@@ -79,6 +79,13 @@ Plano.BARRIO = {
 		Vector3.new(-190, 0, -36),
 		Vector3.new(-235, 0, -36),
 		Vector3.new(-280, 0, -36),
+	},
+	-- Al fondo, pasando los terrenos, dos mansiones abiertas para todos (Mansiones.server.lua).
+	-- Centro de cada terreno de mansion; miran a la calle igual que los terrenos.
+	MANSIONES_X = -318, -- desde aca empiezan los terrenos de las mansiones
+	MANSIONES = {
+		Vector3.new(-368, 0, 40),
+		Vector3.new(-368, 0, -40),
 	},
 }
 

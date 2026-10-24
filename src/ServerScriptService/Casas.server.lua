@@ -127,7 +127,7 @@ local function arbol(x, z)
 	local copa = azar:NextNumber(6, 8)
 	parte(barrio, "Hojas", Vector3.one * copa, CFrame.new(x, SUELO + alto + copa / 3, z), Color3.fromRGB(40, 125, 50), Enum.Material.Grass, Enum.PartType.Ball)
 end
-for x = B.X_CERCA - 12, B.X_LEJOS + 8, -18 do
+for x = B.X_CERCA - 12, B.MANSIONES_X + 8, -18 do
 	arbol(x + azar:NextNumber(-3, 3), B.Z - 5)
 	arbol(x + azar:NextNumber(-3, 3), -B.Z + 5)
 end
