@@ -5,6 +5,9 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local DataStoreService = game:GetService("DataStoreService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local ConfigGolf = require(ReplicatedStorage:WaitForChild("ConfigGolf"))
 
 local ALMACEN = DataStoreService:GetDataStore("MundoRoblox_Monedas_v1")
 local RANKING = DataStoreService:GetOrderedDataStore("MundoRoblox_Ranking_v1") -- lo lee Ranking.server.lua
@@ -42,8 +45,19 @@ local function cargar(jugador)
 		return ALMACEN:GetAsync(tostring(jugador.UserId))
 	end)
 
-	if not ok or not jugador.Parent then
+	if not jugador.Parent then
 		return
+	end
+	-- En Studio sin "Enable Studio Access to API Services" la carga siempre falla: se juega
+	-- igual con datos vacios, pero sin guardar (nada de lo de esta partida queda).
+	local sinGuardar = false
+	if not ok then
+		if not RunService:IsStudio() then
+			return
+		end
+		warn("DataStore no disponible en Studio: se juega sin guardar. Activa Game Settings > Security > Enable Studio Access to API Services")
+		guardado = nil
+		sinGuardar = true
 	end
 
 	-- Los datos viejos eran solo un numero (las monedas); los nuevos son una tabla
@@ -66,6 +80,15 @@ local function cargar(jugador)
 	-- Casa del Barrio y sus muebles (Casas.server.lua)
 	jugador:SetAttribute("TieneCasa", guardado.TieneCasa == true)
 	jugador:SetAttribute("Muebles", guardado.Muebles or "")
+	-- Golf: recorridos terminados, mejor recorrido (menos golpes; 0 = ninguno) y hoyos en uno (Golf.server.lua)
+	jugador:SetAttribute("GolfRondas", guardado.GolfRondas or 0)
+	-- El mejor recorrido solo vale si se hizo con la cantidad de hoyos de ahora (antes eran 3)
+	local mejorValido = (guardado.GolfMejorHoyos or 3) == #ConfigGolf.Hoyos
+	jugador:SetAttribute("GolfMejor", mejorValido and guardado.GolfMejor or 0)
+	jugador:SetAttribute("GolfHoyosEnUno", guardado.GolfHoyosEnUno or 0)
+	-- Tienda de golf: palos y pelotas comprados, y la pelota que usa (TiendaGolf.server.lua)
+	jugador:SetAttribute("GolfCosas", guardado.GolfCosas or "")
+	jugador:SetAttribute("GolfBola", guardado.GolfBola or "")
 	-- Primero las que tiene y despues las equipadas, para que el modelo se arme una sola vez
 	-- Cada mascota se guarda con su nivel (antes se guardaba true = nivel 1)
 	for id, nivel in guardado.Mascotas or {} do
@@ -92,7 +115,9 @@ local function cargar(jugador)
 	for _, nivel in mejoras:GetChildren() do
 		nivel.Value = (guardado.Mejoras and guardado.Mejoras[nivel.Name]) or 0
 	end
-	cargados[jugador] = true
+	if not sinGuardar then
+		cargados[jugador] = true
+	end
 	jugador:SetAttribute("DatosCargados", true) -- Recompensa.server.lua y el cliente esperan esto
 end
 
@@ -122,6 +147,12 @@ local function guardar(jugador)
 		AutoMotor = jugador:GetAttribute("AutoMotor") or "",
 		TieneCasa = jugador:GetAttribute("TieneCasa") == true,
 		Muebles = jugador:GetAttribute("Muebles") or "",
+		GolfRondas = jugador:GetAttribute("GolfRondas") or 0,
+		GolfMejor = jugador:GetAttribute("GolfMejor") or 0,
+		GolfMejorHoyos = #ConfigGolf.Hoyos,
+		GolfHoyosEnUno = jugador:GetAttribute("GolfHoyosEnUno") or 0,
+		GolfCosas = jugador:GetAttribute("GolfCosas") or "",
+		GolfBola = jugador:GetAttribute("GolfBola") or "",
 		Logros = {},
 		Mascotas = {},
 		MascotasEquipadas = {},

@@ -82,6 +82,19 @@ Plano.BARRIO = {
 	},
 }
 
+-- La cancha de Golf (Golf.server.lua y CanchaGolf.lua): al sur de la ciudad, pasando
+-- el arco que hay al final de la avenida (x = 0, z = -LIMITE). Los hoyos van de
+-- norte a sur: el tee de cada uno esta en z = TEE_Z y la bandera mas al sur.
+Plano.GOLF = {
+	Z_CERCA = -160, -- donde empieza (junto a la pared de la ciudad)
+	Z_LEJOS = -450, -- donde termina
+	X = 260, -- de -X a +X (seis hoyos, uno al lado del otro)
+	PUERTA = 7, -- medio ancho de la entrada
+	SUELO = 0.3, -- altura del pasto
+	TEE_Z = -185, -- z de los tees de todos los hoyos
+	SEMILLA = 321,
+}
+
 -- Los cruces de la cuadricula (donde hay semaforos): centro de cada uno, y = 0
 function Plano.cruces()
 	local lista = {}

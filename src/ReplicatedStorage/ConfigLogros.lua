@@ -4,6 +4,7 @@
 -- Agregar un logro = agregar una fila.
 
 local ConfigMejoras = require(script.Parent:WaitForChild("ConfigMejoras"))
+local ConfigGolf = require(script.Parent:WaitForChild("ConfigGolf"))
 
 local function estadistica(jugador, nombre)
 	local leaderstats = jugador:FindFirstChild("leaderstats")
@@ -157,6 +158,54 @@ ConfigLogros.Lista = {
 		premio = 400,
 		valor = function(jugador)
 			return jugador:GetAttribute("Racha") or 0
+		end,
+	},
+	{
+		id = "Golfista",
+		nombre = "Golfista",
+		descripcion = "Terminá un recorrido de golf",
+		meta = 1,
+		premio = 150,
+		valor = function(jugador)
+			return jugador:GetAttribute("GolfRondas") or 0
+		end,
+	},
+	{
+		id = "BajoPar",
+		nombre = "Bajo par",
+		descripcion = "Terminá el golf en par o mejor",
+		meta = 1,
+		premio = 300,
+		valor = function(jugador)
+			-- GolfMejor = menos golpes en un recorrido completo (0 si todavia no termino ninguno)
+			local mejor = jugador:GetAttribute("GolfMejor") or 0
+			return (mejor > 0 and mejor <= ConfigGolf.parTotal()) and 1 or 0
+		end,
+	},
+	{
+		id = "HoyoEnUno",
+		nombre = "Hoyo en uno",
+		descripcion = "Embocá de un solo golpe",
+		meta = 1,
+		premio = 500,
+		valor = function(jugador)
+			return jugador:GetAttribute("GolfHoyosEnUno") or 0
+		end,
+	},
+	{
+		id = "ConEstilo",
+		nombre = "Con estilo",
+		descripcion = "Comprá una pelota de golf con luz o fuego",
+		meta = 1,
+		premio = 250,
+		valor = function(jugador)
+			local tengo = ConfigGolf.comprados(jugador:GetAttribute("GolfCosas"))
+			for _, pelota in ConfigGolf.Pelotas do
+				if (pelota.luz or pelota.fuego) and tengo[pelota.id] then
+					return 1
+				end
+			end
+			return 0
 		end,
 	},
 }

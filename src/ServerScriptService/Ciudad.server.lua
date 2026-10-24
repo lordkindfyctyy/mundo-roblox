@@ -354,8 +354,12 @@ local function pared(x, z, ancho, fondo)
 	local p = crearParte(ciudad, "Limite", Vector3.new(ancho, 60, fondo), CFrame.new(x, 30, z), Color3.new(1, 1, 1))
 	p.Transparency = 1
 end
-pared(0, -LIMITE - 1, LIMITE * 2 + 4, 2)
 pared(0, LIMITE + 1, LIMITE * 2 + 4, 2)
+-- Al sur queda un hueco al final de la avenida: la entrada a la cancha de Golf (Golf.server.lua)
+local puertaGolf = Plano.GOLF.PUERTA
+local tramoGolf = LIMITE + 2 - puertaGolf
+pared(-(puertaGolf + tramoGolf / 2), -LIMITE - 1, tramoGolf, 2)
+pared(puertaGolf + tramoGolf / 2, -LIMITE - 1, tramoGolf, 2)
 -- Al oeste tambien: la entrada al Barrio de casas (Casas.server.lua)
 local puertaBarrio = Plano.BARRIO.PUERTA
 local tramoBarrio = LIMITE + 2 - puertaBarrio
