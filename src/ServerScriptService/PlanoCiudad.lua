@@ -82,6 +82,24 @@ Plano.BARRIO = {
 	},
 }
 
+-- El parque de diversiones (Diversiones.server.lua): al sur de la ciudad, pasando el
+-- arco que hay al final de la avenida (x = 0, z = -LIMITE). Va de Z_CERCA a Z_LEJOS
+-- (hacia -Z) y de -X a +X. Un camino ancho baja por el medio (x = 0).
+Plano.DIVERSIONES = {
+	Z_CERCA = -160, -- donde empieza (junto a la pared de la ciudad)
+	Z_LEJOS = -340, -- donde termina
+	X = 100, -- de -X a +X
+	PUERTA = 7, -- medio ancho de la entrada
+	MEDIO_ANCHO_CAMINO = 8,
+}
+
+-- Un punto al azar sobre el camino del medio del parque de diversiones (y = 0)
+function Plano.puntoEnDiversiones(azar)
+	local d = Plano.DIVERSIONES
+	local margen = d.MEDIO_ANCHO_CAMINO - 2
+	return Vector3.new(azar:NextNumber(-margen, margen), 0, azar:NextNumber(d.Z_LEJOS + 45, d.Z_CERCA - 6))
+end
+
 -- Los cruces de la cuadricula (donde hay semaforos): centro de cada uno, y = 0
 function Plano.cruces()
 	local lista = {}
