@@ -42,7 +42,16 @@ local function cargar(jugador)
 		return ALMACEN:GetAsync(tostring(jugador.UserId))
 	end)
 
-	if not ok or not jugador.Parent then
+	if not jugador.Parent then
+		return
+	end
+	if not ok then
+		-- En Studio sin "Enable Studio Access to API Services" el DataStore no anda:
+		-- se juega igual con datos nuevos, pero sin guardar (cargados queda en nil)
+		if RunService:IsStudio() then
+			warn("Sin DataStore en Studio: se juega con datos nuevos y no se guarda nada")
+			jugador:SetAttribute("DatosCargados", true)
+		end
 		return
 	end
 
