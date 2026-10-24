@@ -65,6 +65,12 @@ local function reconstruir(jugador)
 		local mascota = ConfigMascotas.buscar(marca.Name)
 		if mascota and POSICIONES[i] then
 			local modelo = crearModelo(mascota, ConfigMascotas.nivel(jugador, mascota.id))
+			-- El dueño no ve el nombre de sus mascotas: le tapaba la vista; los demas si
+			for _, cartel in modelo:GetDescendants() do
+				if cartel:IsA("BillboardGui") then
+					cartel.PlayerToHideFrom = jugador
+				end
+			end
 			modelo.Parent = carpetaModelos
 			modelo:PivotTo(raiz.CFrame * CFrame.new(POSICIONES[i].X, -2, POSICIONES[i].Z))
 			table.insert(lista, modelo)
