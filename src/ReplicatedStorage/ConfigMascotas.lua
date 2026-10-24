@@ -14,13 +14,17 @@ ConfigMascotas.REEMBOLSO_REPETIDA = 0.4 -- con la mascota en nivel maximo, una r
 ConfigMascotas.NIVEL_MAXIMO = 5
 ConfigMascotas.BONUS_POR_NIVEL = 0.25 -- cada nivel arriba del 1 suma +25% del bonus de la mascota
 
+ConfigMascotas.RADIO_POR_NIVEL = 2 -- cada nivel arriba del 1 suma estos studs al radio para juntar monedas
+
 -- escala: tamano del modelo segun la rareza
+-- radio: hasta que distancia del jugador la mascota va a buscar monedas sola
+-- velocidad: studs por segundo cuando va a buscar una moneda
 ConfigMascotas.Rarezas = {
-	Comun = { nombre = "Común", color = Color3.fromRGB(190, 190, 190), escala = 1 },
-	PocoComun = { nombre = "Poco común", color = Color3.fromRGB(90, 200, 90), escala = 1.1 },
-	Rara = { nombre = "Rara", color = Color3.fromRGB(70, 150, 255), escala = 1.25 },
-	Epica = { nombre = "Épica", color = Color3.fromRGB(190, 90, 255), escala = 1.4 },
-	Legendaria = { nombre = "Legendaria", color = Color3.fromRGB(255, 180, 0), escala = 1.6 },
+	Comun = { nombre = "Común", color = Color3.fromRGB(190, 190, 190), escala = 1, radio = 12, velocidad = 22 },
+	PocoComun = { nombre = "Poco común", color = Color3.fromRGB(90, 200, 90), escala = 1.1, radio = 15, velocidad = 26 },
+	Rara = { nombre = "Rara", color = Color3.fromRGB(70, 150, 255), escala = 1.25, radio = 18, velocidad = 30 },
+	Epica = { nombre = "Épica", color = Color3.fromRGB(190, 90, 255), escala = 1.4, radio = 22, velocidad = 35 },
+	Legendaria = { nombre = "Legendaria", color = Color3.fromRGB(255, 180, 0), escala = 1.6, radio = 28, velocidad = 42 },
 }
 
 -- Huevos. Cada mascota dice su peso en cada huevo (pesos.Comun, pesos.Dorado);
@@ -93,6 +97,11 @@ end
 -- Bonus de una mascota en un nivel: +25% del bonus base por cada nivel arriba del 1
 function ConfigMascotas.bonusEnNivel(mascota, nivel)
 	return mascota.bonus * (1 + ConfigMascotas.BONUS_POR_NIVEL * (nivel - 1))
+end
+
+-- Hasta que distancia del jugador va a buscar monedas una mascota en un nivel
+function ConfigMascotas.radioJuntar(mascota, nivel)
+	return ConfigMascotas.Rarezas[mascota.rareza].radio + ConfigMascotas.RADIO_POR_NIVEL * (nivel - 1)
 end
 
 -- Multiplicador de monedas que dan las mascotas equipadas: 1 sin ninguna, 1.3 con +30%...

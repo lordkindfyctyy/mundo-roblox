@@ -279,6 +279,17 @@ for _ = 1, CANTIDAD_MONEDAS_PLAYA do
 	crearMoneda(false, "playa")
 end
 
+-- Mascotas.server.lua dispara esto cuando una mascota llega a una moneda: la junta para su dueño
+local recogerMascota = Instance.new("BindableEvent")
+recogerMascota.Name = "RecogerMoneda"
+recogerMascota.Parent = ServerStorage
+
+recogerMascota.Event:Connect(function(moneda, jugador)
+	if moneda.Parent == carpeta and jugador.Parent and jugador:FindFirstChild("leaderstats") then
+		recoger(moneda, jugador)
+	end
+end)
+
 -- Eventos.server.lua dispara esto para pedir una lluvia de monedas extra
 local pedirLluvia = Instance.new("BindableEvent")
 pedirLluvia.Name = "CrearMonedasExtra"

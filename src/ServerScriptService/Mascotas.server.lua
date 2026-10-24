@@ -2,10 +2,13 @@
 -- Las mascotas que tiene un jugador son BoolValue en su carpeta "Mascotas";
 -- las equipadas, en "MascotasEquipadas". GuardadoMonedas.server.lua las carga y las guarda.
 -- El bonus de monedas lo aplica JuegoMonedas.server.lua con ConfigMascotas.multiplicador().
+-- Ademas, cada mascota equipada va sola a buscar las monedas que estan cerca del jugador
+-- (ConfigMascotas.radioJuntar) y se las junta con el evento RecogerMoneda de JuegoMonedas.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
 
 local ConfigMascotas = require(ReplicatedStorage:WaitForChild("ConfigMascotas"))
@@ -19,6 +22,10 @@ local POSICIONES = {
 }
 local SUAVIZADO = 8 -- cuanto mas alto, mas rapido alcanzan al jugador
 local ALTURA_VUELO = 1.5 -- las que vuelan (Buho, Dragon, Fenix) van a la altura del jugador
+local BUSCAR_CADA = 0.25 -- segundos entre busquedas de monedas cercanas
+local DISTANCIA_JUNTAR = 2.5 -- a esta distancia de la moneda, la mascota la junta
+local ALTURA_MAXIMA = 12 -- no van a buscar monedas mucho mas arriba o abajo que el jugador (la Torre)
+local SOLTAR_LEJOS = 1.5 -- si el jugador se aleja (radio x esto) de la moneda, la mascota vuelve
 
 local abrirHuevo = Instance.new("RemoteFunction")
 abrirHuevo.Name = "AbrirHuevo"
@@ -34,20 +41,57 @@ carpetaModelos.Parent = Workspace
 
 local seguidores = {} -- jugador -> lista de modelos, en el orden de POSICIONES
 local pendiente = {} -- jugador -> true si ya hay una reconstruccion en espera
+local persiguiendo = {} -- modelo -> moneda que va a buscar
+local reservadas = {} -- moneda -> modelo, para que dos mascotas no vayan a la misma
 
 -- El modelo de cada especie lo arma ModelosMascotas.lua
 local function crearModelo(mascota, nivel)
-	return ModelosMascotas.crear(mascota, ConfigMascotas.Rarezas[mascota.rareza], nivel)
+	local rareza = ConfigMascotas.Rarezas[mascota.rareza]
+	local modelo = ModelosMascotas.crear(mascota, rareza, nivel)
+	modelo:SetAttribute("RadioJuntar", ConfigMascotas.radioJuntar(mascota, nivel))
+	modelo:SetAttribute("VelocidadJuntar", rareza.velocidad)
+	return modelo
+end
+
+local function soltar(modelo)
+	local moneda = persiguiendo[modelo]
+	if moneda then
+		reservadas[moneda] = nil
+		persiguiendo[modelo] = nil
+	end
 end
 
 local function borrarModelos(jugador)
 	local lista = seguidores[jugador]
 	if lista then
 		for _, modelo in lista do
+			soltar(modelo)
 			modelo:Destroy()
 		end
 	end
 	seguidores[jugador] = nil
+end
+
+local function distanciaPlana(a, b)
+	return ((a - b) * Vector3.new(1, 0, 1)).Magnitude
+end
+
+-- La moneda libre mas cercana al jugador dentro del radio, o nil
+local function buscarMoneda(centro, radio)
+	local carpeta = Workspace:FindFirstChild("Monedas")
+	if not carpeta then
+		return nil
+	end
+	local mejor, mejorDistancia = nil, radio
+	for _, moneda in carpeta:GetChildren() do
+		if not reservadas[moneda] and not moneda:GetAttribute("Recogida") and math.abs(moneda.Position.Y - centro.Y) < ALTURA_MAXIMA then
+			local distancia = distanciaPlana(moneda.Position, centro)
+			if distancia < mejorDistancia then
+				mejor, mejorDistancia = moneda, distancia
+			end
+		end
+	end
+	return mejor
 end
 
 -- Vuelve a crear los modelos de las mascotas equipadas
@@ -190,9 +234,38 @@ Players.PlayerRemoving:Connect(function(jugador)
 	pendiente[jugador] = nil
 end)
 
--- Las mascotas se acercan al jugador con suavidad y flotan un poquito
+-- Lleva la mascota hacia su moneda; cuando llega, se la junta al jugador
+local function irAMoneda(modelo, moneda, jugador, alturaY, dt)
+	local actual = modelo:GetPivot().Position
+	local destino = Vector3.new(moneda.Position.X, alturaY, moneda.Position.Z)
+	local hacia = destino - actual
+	local paso = (modelo:GetAttribute("VelocidadJuntar") or 25) * dt
+	if hacia.Magnitude <= math.max(DISTANCIA_JUNTAR, paso) then
+		soltar(modelo)
+		local recoger = ServerStorage:FindFirstChild("RecogerMoneda")
+		if recoger then
+			recoger:Fire(moneda, jugador)
+		end
+		return
+	end
+	local nueva = actual + hacia.Unit * paso
+	local plano = hacia * Vector3.new(1, 0, 1)
+	if plano.Magnitude > 0.05 then
+		modelo:PivotTo(CFrame.lookAt(nueva, nueva + plano))
+	else
+		modelo:PivotTo(modelo:GetPivot().Rotation + nueva)
+	end
+end
+
+-- Las mascotas se acercan al jugador con suavidad y flotan un poquito,
+-- salvo cuando van a buscar una moneda cercana
+local proximaBusqueda = 0
 RunService.Heartbeat:Connect(function(dt)
 	local reloj = os.clock()
+	local toca = reloj >= proximaBusqueda
+	if toca then
+		proximaBusqueda = reloj + BUSCAR_CADA
+	end
 	for jugador, lista in seguidores do
 		local raiz = jugador.Character and jugador.Character:FindFirstChild("HumanoidRootPart")
 		if raiz then
@@ -201,8 +274,28 @@ RunService.Heartbeat:Connect(function(dt)
 				local vuela = modelo:GetAttribute("Vuela")
 				local rebote = math.sin(reloj * 3 + i * 2) * (vuela and 0.6 or 0.3)
 				local altura = vuela and ALTURA_VUELO or -2
-				local objetivo = raiz.CFrame * CFrame.new(POSICIONES[i].X, altura + rebote, POSICIONES[i].Z)
-				modelo:PivotTo(modelo:GetPivot():Lerp(objetivo, math.min(1, dt * SUAVIZADO)))
+				local radio = modelo:GetAttribute("RadioJuntar") or 0
+
+				-- Deja la moneda si ya la junto otro, desaparecio o el jugador se fue lejos
+				local moneda = persiguiendo[modelo]
+				if moneda and (moneda.Parent == nil or moneda:GetAttribute("Recogida") or distanciaPlana(moneda.Position, raiz.Position) > radio * SOLTAR_LEJOS) then
+					soltar(modelo)
+					moneda = nil
+				end
+				if not moneda and toca and radio > 0 then
+					moneda = buscarMoneda(raiz.Position, radio)
+					if moneda then
+						persiguiendo[modelo] = moneda
+						reservadas[moneda] = modelo
+					end
+				end
+
+				if moneda then
+					irAMoneda(modelo, moneda, jugador, raiz.Position.Y + altura + rebote, dt)
+				else
+					local objetivo = raiz.CFrame * CFrame.new(POSICIONES[i].X, altura + rebote, POSICIONES[i].Z)
+					modelo:PivotTo(modelo:GetPivot():Lerp(objetivo, math.min(1, dt * SUAVIZADO)))
+				end
 			end
 		end
 	end
