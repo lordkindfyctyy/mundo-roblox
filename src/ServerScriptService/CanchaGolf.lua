@@ -19,7 +19,9 @@ local ConfigGolf = require(ReplicatedStorage:WaitForChild("ConfigGolf"))
 local CanchaGolf = {}
 
 local G = Plano.GOLF
-local LIMITE = Plano.LIMITE
+-- Z de la puerta de la cancha (la pared del frente, justo detras del parque de diversiones). Todo lo de la
+-- entrada (arco, camino, caseta) se calcula desde aca, asi la cancha se puede mover cambiando Plano.GOLF.
+local ZENTRADA = G.Z_CERCA + 1
 local SUELO = G.SUELO
 local ALTO_CALLE = SUELO + 0.04
 local ALTO_ARENA = SUELO + 0.06
@@ -354,7 +356,8 @@ function CanchaGolf.construir()
 		)
 	end
 
-	-- Paredes invisibles alrededor (el frente lo cierra la pared de la ciudad, con su puerta)
+	-- Paredes invisibles alrededor. El frente tiene una puerta en el medio (x = 0), en linea con el camino del
+	-- parque de diversiones, que queda justo antes.
 	local function pared(x, z, ancho, fondo)
 		local p = parte("Limite", Vector3.new(ancho, 60, fondo), CFrame.new(x, 30, z), Color3.new(1, 1, 1))
 		p.Transparency = 1
@@ -362,6 +365,9 @@ function CanchaGolf.construir()
 	pared(-G.X - 1, centroZ, 2, largoZ)
 	pared(G.X + 1, centroZ, 2, largoZ)
 	pared(0, G.Z_LEJOS - 1, G.X * 2 + 4, 2)
+	local tramoFrente = G.X + 1 - G.PUERTA
+	pared(-(G.PUERTA + tramoFrente / 2), ZENTRADA, tramoFrente, 2)
+	pared(G.PUERTA + tramoFrente / 2, ZENTRADA, tramoFrente, 2)
 
 	-- Arboles: en los costados de la cancha, entre los hoyos y al fondo (nunca sobre las calles)
 	local hoyosCfg = ConfigGolf.Hoyos
@@ -386,7 +392,8 @@ function CanchaGolf.construir()
 	-- Colinas de fondo a los costados (solo para mirar)
 	for _, lado in { -1, 1 } do
 		for _, dato in { { -240, 14, 7 }, { -320, 16, 9 }, { -400, 14, 7 } } do
-			monticulo(lado * (G.X - 12), dato[1], dato[2], dato[3], false)
+			-- (z medida desde donde empezaba la cancha antes, -160: se corre con ella)
+			monticulo(lado * (G.X - 12), dato[1] + (G.Z_CERCA + 160), dato[2], dato[3], false)
 		end
 	end
 
@@ -564,23 +571,23 @@ function CanchaGolf.construir()
 
 	-- Entrada: un arco con cartel y un caminito hasta la caseta -------------------------
 
-	parte("Camino", Vector3.new(8, 1, 12), CFrame.new(0, ALTO_CALLE - 0.5, -LIMITE - 7), Color3.fromRGB(170, 160, 140), Enum.Material.Slate)
+	parte("Camino", Vector3.new(8, 1, 12), CFrame.new(0, ALTO_CALLE - 0.5, ZENTRADA - 6), Color3.fromRGB(170, 160, 140), Enum.Material.Slate)
 	for _, lado in { -1, 1 } do
 		parte(
 			"Columna",
 			Vector3.new(2.5, 16, 2.5),
-			CFrame.new(lado * (G.PUERTA + 1.25), 8, -LIMITE - 1),
+			CFrame.new(lado * (G.PUERTA + 1.25), 8, ZENTRADA),
 			Color3.fromRGB(235, 235, 225),
 			Enum.Material.Concrete
 		)
 		-- canteros con flores a los lados del camino
-		arbusto(lado * 8, -LIMITE - 14)
-		flores(lado * 9, -LIMITE - 5, 8)
+		arbusto(lado * 8, ZENTRADA - 13)
+		flores(lado * 9, ZENTRADA - 4, 8)
 	end
-	cartel(CFrame.new(0, 18, -LIMITE - 1), G.PUERTA * 2 + 5, 4, "⛳ GOLF", Color3.fromRGB(30, 110, 60))
+	cartel(CFrame.new(0, 18, ZENTRADA), G.PUERTA * 2 + 5, 4, "⛳ GOLF", Color3.fromRGB(30, 110, 60))
 
 	-- Caseta: techo, mostrador con el cartel de "Jugar" y un letrero con las instrucciones
-	local zCaseta = -172
+	local zCaseta = G.Z_CERCA - 12
 	parte("Piso", Vector3.new(16, 1, 10), CFrame.new(0, SUELO - 0.1, zCaseta), Color3.fromRGB(150, 110, 70), Enum.Material.WoodPlanks)
 	for _, px in { -7, 7 } do
 		for _, pz in { zCaseta - 4, zCaseta + 4 } do

@@ -67,7 +67,7 @@ end
 -- en z = 0 y terrenos a los dos lados, con el frente hacia la calle.
 Plano.BARRIO = {
 	X_CERCA = -160, -- donde empieza (junto a la pared de la ciudad)
-	X_LEJOS = -310, -- donde termina
+	X_LEJOS = -420, -- donde termina
 	Z = 75, -- de -Z a +Z
 	PUERTA = 7, -- medio ancho de la entrada
 	MEDIO_ANCHO_CALLE = 6,
@@ -80,20 +80,47 @@ Plano.BARRIO = {
 		Vector3.new(-235, 0, -36),
 		Vector3.new(-280, 0, -36),
 	},
+	-- Al fondo, pasando los terrenos, dos mansiones abiertas para todos (Mansiones.server.lua).
+	-- Centro de cada terreno de mansion; miran a la calle igual que los terrenos.
+	MANSIONES_X = -318, -- desde aca empiezan los terrenos de las mansiones
+	MANSIONES = {
+		Vector3.new(-368, 0, 40),
+		Vector3.new(-368, 0, -40),
+	},
 }
 
--- La cancha de Golf (Golf.server.lua y CanchaGolf.lua): al sur de la ciudad, pasando
--- el arco que hay al final de la avenida (x = 0, z = -LIMITE). Los hoyos van de
+-- La cancha de Golf (Golf.server.lua y CanchaGolf.lua): al sur de la ciudad, DETRAS del parque de
+-- diversiones (el camino del parque sigue por una puerta en su pared del fondo, x = 0). Los hoyos van de
 -- norte a sur: el tee de cada uno esta en z = TEE_Z y la bandera mas al sur.
+-- Antes empezaba junto a la pared de la ciudad (Z_CERCA = -160), pero ahi esta el parque de diversiones.
+-- Todo se corrio 182 hacia el sur: la pared del fondo del parque queda en z = -341 y el golf arranca en -342.
 Plano.GOLF = {
-	Z_CERCA = -160, -- donde empieza (junto a la pared de la ciudad)
-	Z_LEJOS = -450, -- donde termina
+	Z_CERCA = -342, -- donde empieza (justo detras del parque de diversiones)
+	Z_LEJOS = -632, -- donde termina
 	X = 260, -- de -X a +X (seis hoyos, uno al lado del otro)
 	PUERTA = 7, -- medio ancho de la entrada
 	SUELO = 0.3, -- altura del pasto
-	TEE_Z = -185, -- z de los tees de todos los hoyos
+	TEE_Z = -367, -- z de los tees de todos los hoyos
 	SEMILLA = 321,
 }
+
+-- El parque de diversiones (Diversiones.server.lua): al sur de la ciudad, pasando el
+-- arco que hay al final de la avenida (x = 0, z = -LIMITE). Va de Z_CERCA a Z_LEJOS
+-- (hacia -Z) y de -X a +X. Un camino ancho baja por el medio (x = 0).
+Plano.DIVERSIONES = {
+	Z_CERCA = -160, -- donde empieza (junto a la pared de la ciudad)
+	Z_LEJOS = -340, -- donde termina
+	X = 100, -- de -X a +X
+	PUERTA = 7, -- medio ancho de la entrada
+	MEDIO_ANCHO_CAMINO = 8,
+}
+
+-- Un punto al azar sobre el camino del medio del parque de diversiones (y = 0)
+function Plano.puntoEnDiversiones(azar)
+	local d = Plano.DIVERSIONES
+	local margen = d.MEDIO_ANCHO_CAMINO - 2
+	return Vector3.new(azar:NextNumber(-margen, margen), 0, azar:NextNumber(d.Z_LEJOS + 45, d.Z_CERCA - 6))
+end
 
 -- Los cruces de la cuadricula (donde hay semaforos): centro de cada uno, y = 0
 function Plano.cruces()

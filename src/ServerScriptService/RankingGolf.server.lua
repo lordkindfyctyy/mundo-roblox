@@ -19,7 +19,7 @@ local PAR_TOTAL = ConfigGolf.parTotal()
 
 -- Al costado de la caseta, mirando hacia la entrada; fuera de las calles de los hoyos
 local X_CARTEL = 24
-local Z_CARTEL = -170
+local Z_CARTEL = Plano.GOLF.Z_CERCA - 10 -- junto a la caseta (que esta 12 detras de la puerta)
 local ALTO_CARTEL = 9
 local ANCHO_CARTEL = 16
 

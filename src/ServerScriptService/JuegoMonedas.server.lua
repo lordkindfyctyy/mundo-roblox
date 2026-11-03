@@ -23,6 +23,8 @@ local CANTIDAD_MONEDAS = 20 -- en el parque
 local CANTIDAD_MONEDAS_CIUDAD = 40 -- sobre las calles de la ciudad
 local CANTIDAD_MONEDAS_PLAYA = 25 -- en la arena de la Playa (hay que desbloquearla)
 local VALOR_PLAYA = 3 -- las de la Playa valen el triple
+local CANTIDAD_MONEDAS_DIVERSIONES = 15 -- en el camino del parque de diversiones
+local VALOR_DIVERSIONES = 2 -- y valen el doble
 local TIEMPO_RESPAWN = 5
 local AREA = 80 -- las monedas aparecen dentro de un cuadrado de AREA x AREA
 local DISTANCIA_RECOGER = 3 -- una moneda atraida por el iman se recoge a esta distancia
@@ -183,7 +185,8 @@ crearMoneda = function(temporal, zona)
 	moneda.Material = Enum.Material.Neon
 	moneda.Anchored = true
 	moneda.CanCollide = false
-	moneda:SetAttribute("Valor", tipo.valor * (zona == "playa" and VALOR_PLAYA or 1))
+	local multiplicador = zona == "playa" and VALOR_PLAYA or zona == "diversiones" and VALOR_DIVERSIONES or 1
+	moneda:SetAttribute("Valor", tipo.valor * multiplicador)
 	moneda:SetAttribute("Sonido", tipo.sonido)
 	moneda:SetAttribute("Recogida", false)
 	moneda:SetAttribute("Temporal", temporal == true)
@@ -196,6 +199,8 @@ crearMoneda = function(temporal, zona)
 		suelo = PlanoCiudad.puntoEnCalle(azarCiudad)
 	elseif zona == "playa" then
 		suelo = PlanoCiudad.puntoEnPlaya(azarCiudad)
+	elseif zona == "diversiones" then
+		suelo = PlanoCiudad.puntoEnDiversiones(azarCiudad)
 	else
 		suelo = Vector3.new(math.random(-AREA / 2, AREA / 2), 0, math.random(-AREA / 2, AREA / 2))
 	end
@@ -281,6 +286,20 @@ end
 for _ = 1, CANTIDAD_MONEDAS_PLAYA do
 	crearMoneda(false, "playa")
 end
+for _ = 1, CANTIDAD_MONEDAS_DIVERSIONES do
+	crearMoneda(false, "diversiones")
+end
+
+-- Mascotas.server.lua dispara esto cuando una mascota llega a una moneda: la junta para su dueño
+local recogerMascota = Instance.new("BindableEvent")
+recogerMascota.Name = "RecogerMoneda"
+recogerMascota.Parent = ServerStorage
+
+recogerMascota.Event:Connect(function(moneda, jugador)
+	if moneda.Parent == carpeta and jugador.Parent and jugador:FindFirstChild("leaderstats") then
+		recoger(moneda, jugador)
+	end
+end)
 
 -- Eventos.server.lua dispara esto para pedir una lluvia de monedas extra
 local pedirLluvia = Instance.new("BindableEvent")

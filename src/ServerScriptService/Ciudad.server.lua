@@ -355,11 +355,12 @@ local function pared(x, z, ancho, fondo)
 	p.Transparency = 1
 end
 pared(0, LIMITE + 1, LIMITE * 2 + 4, 2)
--- Al sur queda un hueco al final de la avenida: la entrada a la cancha de Golf (Golf.server.lua)
-local puertaGolf = Plano.GOLF.PUERTA
-local tramoGolf = LIMITE + 2 - puertaGolf
-pared(-(puertaGolf + tramoGolf / 2), -LIMITE - 1, tramoGolf, 2)
-pared(puertaGolf + tramoGolf / 2, -LIMITE - 1, tramoGolf, 2)
+-- Al sur, un hueco al final de la avenida: la entrada al parque de diversiones (Diversiones.server.lua).
+-- Por el fondo del parque se sigue hasta la cancha de golf (CanchaGolf.lua).
+local puertaDiversiones = Plano.DIVERSIONES.PUERTA
+local tramoDiversiones = LIMITE + 2 - puertaDiversiones
+pared(-(puertaDiversiones + tramoDiversiones / 2), -LIMITE - 1, tramoDiversiones, 2)
+pared(puertaDiversiones + tramoDiversiones / 2, -LIMITE - 1, tramoDiversiones, 2)
 -- Al oeste tambien: la entrada al Barrio de casas (Casas.server.lua)
 local puertaBarrio = Plano.BARRIO.PUERTA
 local tramoBarrio = LIMITE + 2 - puertaBarrio
