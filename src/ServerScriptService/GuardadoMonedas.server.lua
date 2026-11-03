@@ -18,6 +18,13 @@ local AUTOGUARDADO = 60 -- segundos
 -- para no pisar el progreso real con un 0.
 local cargados = {}
 
+-- Jugadores que se estan guardando ahora, y cuantos son. Sirve para dos cosas: no lanzar dos escrituras a la misma
+-- clave a la vez (el autoguardado, la salida y el cierre del servidor pueden coincidir) y que el cierre espere a
+-- que terminen todas en vez de cortar los guardados que siguen en curso.
+local guardandose = {}
+local guardadosEnCurso = 0
+local ESPERA_MAXIMA_CIERRE = 25 -- segundos; el servidor da hasta 30 para BindToClose
+
 local function conReintentos(funcion)
 	local ok, resultado
 	for intento = 1, INTENTOS do
@@ -126,6 +133,13 @@ local function cargar(jugador)
 end
 
 local function guardar(jugador)
+	-- Si ya se esta guardando, se espera a que termine antes de escribir (nunca dos a la vez en la misma clave).
+	-- Despues se revisa todo y se arma de nuevo: mientras tanto el jugador pudo comprar algo o irse, y lo ultimo
+	-- tiene que quedar guardado.
+	while guardandose[jugador] do
+		task.wait(0.1)
+	end
+
 	if not cargados[jugador] then
 		return
 	end
@@ -184,12 +198,19 @@ local function guardar(jugador)
 		datos.Mejoras[nivel.Name] = nivel.Value
 	end
 
+	-- Desde aca no hay nada que pueda fallar fuera de conReintentos (que usa pcall): el marcador siempre se libera.
+	-- No hay ninguna pausa entre la espera de arriba y este marcador, asi que dos guardados no se cruzan.
+	guardandose[jugador] = true
+	guardadosEnCurso += 1
 	conReintentos(function()
 		ALMACEN:SetAsync(tostring(jugador.UserId), datos)
 	end)
 	conReintentos(function()
 		RANKING:SetAsync(tostring(jugador.UserId), datos.Total)
 	end)
+
+	guardandose[jugador] = nil
+	guardadosEnCurso -= 1
 end
 
 Players.PlayerAdded:Connect(cargar)
@@ -210,7 +231,13 @@ game:BindToClose(function()
 	for _, jugador in Players:GetPlayers() do
 		task.spawn(guardar, jugador)
 	end
-	task.wait(3)
+	task.wait() -- deja que arranquen (los que se estan yendo ya empezaron en PlayerRemoving)
+	-- Se espera a que TODOS terminen: cada uno hace dos escrituras con reintentos, y con pocos segundos fijos los
+	-- ultimos se cortaban cuando el servidor se cerraba.
+	local limite = os.clock() + ESPERA_MAXIMA_CIERRE
+	while guardadosEnCurso > 0 and os.clock() < limite do
+		task.wait(0.1)
+	end
 end)
 
 -- Autoguardado periodico

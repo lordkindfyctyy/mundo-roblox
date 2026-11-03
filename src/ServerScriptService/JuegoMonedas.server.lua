@@ -25,7 +25,6 @@ local CANTIDAD_MONEDAS_PLAYA = 25 -- en la arena de la Playa (hay que desbloquea
 local VALOR_PLAYA = 3 -- las de la Playa valen el triple
 local TIEMPO_RESPAWN = 5
 local AREA = 80 -- las monedas aparecen dentro de un cuadrado de AREA x AREA
-local VELOCIDAD_GIRO = math.rad(120) -- grados por segundo
 local DISTANCIA_RECOGER = 3 -- una moneda atraida por el iman se recoge a esta distancia
 local VOLUMEN_SONIDO = 0.6
 local DURACION_TEMPORAL = 25 -- las monedas de la lluvia desaparecen solas si nadie las agarra
@@ -188,6 +187,7 @@ crearMoneda = function(temporal, zona)
 	moneda:SetAttribute("Sonido", tipo.sonido)
 	moneda:SetAttribute("Recogida", false)
 	moneda:SetAttribute("Temporal", temporal == true)
+	-- Angulo con que arranca el giro; marca ademas a esta parte como moneda. El giro lo hace el cliente (MonedasGiran.client.lua).
 	moneda:SetAttribute("Angulo", math.random() * math.pi * 2)
 	moneda:SetAttribute("Zona", zona or "parque")
 
@@ -223,42 +223,45 @@ crearMoneda = function(temporal, zona)
 	end)
 end
 
--- Devuelve el jugador con iman que tiene la moneda dentro de su radio, y su posicion
-local function buscarImanCercano(posicion)
+-- Jugadores que tienen iman ahora (casi siempre ninguno): { jugador, radio, posicion }
+local function jugadoresConIman()
+	local lista
 	for _, jugador in Players:GetPlayers() do
 		local mejoras = jugador:FindFirstChild("Mejoras")
+		local iman = mejoras and mejoras:FindFirstChild("Iman")
 		local raiz = jugador.Character and jugador.Character:FindFirstChild("HumanoidRootPart")
-		if mejoras and raiz then
-			local radio = mejoras.Iman.Value * ConfigMejoras.IMAN_RADIO_POR_NIVEL
-			if radio > 0 and (raiz.Position - posicion).Magnitude <= radio then
-				return jugador, raiz.Position
+		if iman and raiz then
+			local radio = iman.Value * ConfigMejoras.IMAN_RADIO_POR_NIVEL
+			if radio > 0 then
+				lista = lista or {}
+				table.insert(lista, { jugador = jugador, radio = radio, posicion = raiz.Position })
 			end
 		end
 	end
-	return nil
+	return lista
 end
 
--- Hace girar todas las monedas y mueve hacia el jugador las que estan en rango del iman
+-- Mueve hacia el jugador las monedas que estan en rango de su iman. El giro de las monedas lo hace cada
+-- cliente (MonedasGiran.client.lua): hacerlas girar desde aca replicaba ~5.000 cambios por segundo a todos
+-- los jugadores. Si nadie tiene iman, este bucle no toca ninguna moneda.
 RunService.Heartbeat:Connect(function(dt)
+	local imanes = jugadoresConIman()
+	if not imanes then
+		return
+	end
 	for _, moneda in carpeta:GetChildren() do
-		local angulo = moneda:GetAttribute("Angulo")
-		if angulo and not moneda:GetAttribute("Recogida") then
-			angulo += VELOCIDAD_GIRO * dt
-			moneda:SetAttribute("Angulo", angulo)
-
+		if moneda:GetAttribute("Angulo") and not moneda:GetAttribute("Recogida") then
 			local posicion = moneda.Position
-			local jugador, objetivo = buscarImanCercano(posicion)
-			if jugador then
-				local distancia = (objetivo - posicion).Magnitude
-				if distancia <= DISTANCIA_RECOGER then
-					recoger(moneda, jugador)
-				else
-					posicion += (objetivo - posicion).Unit * math.min(ConfigMejoras.IMAN_VELOCIDAD * dt, distancia)
+			for _, iman in imanes do
+				if (iman.posicion - posicion).Magnitude <= iman.radio then
+					local distancia = (iman.posicion - posicion).Magnitude
+					if distancia <= DISTANCIA_RECOGER then
+						recoger(moneda, iman.jugador)
+					else
+						moneda.Position = posicion + (iman.posicion - posicion).Unit * math.min(ConfigMejoras.IMAN_VELOCIDAD * dt, distancia)
+					end
+					break
 				end
-			end
-
-			if not moneda:GetAttribute("Recogida") then
-				moneda.CFrame = CFrame.new(posicion) * CFrame.Angles(0, angulo, 0)
 			end
 		end
 	end
