@@ -6,6 +6,7 @@
 local ConfigMejoras = require(script.Parent:WaitForChild("ConfigMejoras"))
 local ConfigGolf = require(script.Parent:WaitForChild("ConfigGolf"))
 local ConfigPesca = require(script.Parent:WaitForChild("ConfigPesca"))
+local ConfigHuevos = require(script.Parent:WaitForChild("ConfigHuevos"))
 
 local function estadistica(jugador, nombre)
 	local leaderstats = jugador:FindFirstChild("leaderstats")
@@ -268,6 +269,30 @@ ConfigLogros.Lista = {
 		valor = function(jugador)
 			return ConfigPesca.conteos(jugador:GetAttribute("PescaPeces")).dorado or 0
 		end,
+	},
+	{
+		id = "Buscahuevos",
+		nombre = "Buscahuevos",
+		descripcion = "Encontrá 5 huevos escondidos",
+		meta = 5,
+		premio = 150,
+		valor = ConfigHuevos.cantidad,
+	},
+	{
+		id = "Cazahuevos",
+		nombre = "Cazahuevos",
+		descripcion = "Encontrá 15 huevos escondidos",
+		meta = 15,
+		premio = 500,
+		valor = ConfigHuevos.cantidad,
+	},
+	{
+		id = "MaestroBuscador",
+		nombre = "Maestro buscador",
+		descripcion = "Encontrá todos los huevos escondidos",
+		meta = ConfigHuevos.total(),
+		premio = 2000,
+		valor = ConfigHuevos.cantidad,
 	},
 }
 

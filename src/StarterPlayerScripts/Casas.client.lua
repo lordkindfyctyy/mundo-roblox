@@ -49,7 +49,7 @@ botonCasa.TextColor3 = Color3.new(1, 1, 1)
 botonCasa.Text = "🏠 Mi casa"
 botonCasa.Parent = pantalla
 redondear(botonCasa, 10)
-Interfaz.botonLateral(botonCasa, "derecha", 1, 2)
+Interfaz.botonLateral(botonCasa, "derecha", 1, 3)
 botonCasa.Activated:Connect(function()
 	irAMiCasa:FireServer()
 end)
