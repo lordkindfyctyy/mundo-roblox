@@ -49,10 +49,12 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 
 | Archivo | Qué hace |
 |---|---|
-| `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, las hace girar, suma los puntos y atrae monedas con el imán |
+| `src/ServerScriptService/JuegoMonedas.server.lua` | Crea las monedas, suma los puntos y atrae monedas con el imán (el giro lo hace cada cliente) |
 | `src/ServerScriptService/Mapa.server.lua` | Genera el parque del centro: césped, cerco con 4 entradas, árboles, flores y cartel de bienvenida |
 | `src/ServerScriptService/PlanoCiudad.lua` | Dónde van las calles; lo usan la ciudad y las monedas de la ciudad |
-| `src/ServerScriptService/Autos.server.lua` | Autos que recorren las calles, frenan ante jugadores y otros autos y ceden el paso en los cruces |
+| `src/ServerScriptService/Autos.server.lua` | Autos que recorren las calles, frenan ante jugadores y otros autos y ceden el paso en los cruces. Decide cuándo frenar y avisa por atributos; no mueve las partes |
+| `src/StarterPlayerScripts/MonedasGiran.client.lua` | Hace girar las monedas en el cliente (antes lo hacía el servidor y saturaba la red) |
+| `src/StarterPlayerScripts/AutosTrafico.client.lua` | Mueve los autos de la calle calculando su posición con lo que publica el servidor (origen, dirección, velocidad y hora) |
 | `src/ServerScriptService/Semaforos.server.lua` | Semáforos en las esquinas de los 16 cruces y el ciclo de luces que siguen los autos |
 | `src/ServerScriptService/Negocios.lua` | Arma los negocios con cartel y Lo De Lalo Pet Shop (adentro, la compra de alimentos) |
 | `src/ReplicatedStorage/ConfigAlimentos.lua` | Alimentos del pet shop: precio, multiplicador y duración |

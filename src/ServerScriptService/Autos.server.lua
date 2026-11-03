@@ -88,15 +88,32 @@ for i = 1, CANTIDAD_AUTOS do
 	table.insert(autos, auto)
 end
 
-local function ubicar(auto)
-	local pos = posicionEn(auto.carril, auto.avance)
-	local dir = direccion(auto.carril)
-	auto.posicion = pos
-	auto.modelo:PivotTo(CFrame.lookAt(pos, pos + dir))
+-- El servidor lleva la cuenta de donde esta cada auto (para decidir cuando frenar), pero NO mueve las partes:
+-- mover 14 modelos de decenas de partes en cada frame replicaba la mayor parte del trafico de red del juego.
+-- Cada auto publica en atributos de su modelo donde estaba, hacia donde iba, a que velocidad y a que hora; el
+-- cliente (AutosTrafico.client.lua) calcula con eso donde esta el auto en cada instante. Solo se vuelve a publicar
+-- cuando cambia algo: frena, arranca o da la vuelta al borde de la ciudad.
+local function actualizarPosicion(auto)
+	auto.posicion = posicionEn(auto.carril, auto.avance)
+end
+
+local function publicar(auto, velocidad)
+	local modelo = auto.modelo
+	modelo:SetAttribute("Origen", auto.posicion)
+	modelo:SetAttribute("Direccion", direccion(auto.carril))
+	modelo:SetAttribute("Velocidad", velocidad)
+	modelo:SetAttribute("Desde", Workspace:GetServerTimeNow())
 end
 
 for _, auto in autos do
-	ubicar(auto)
+	actualizarPosicion(auto)
+	-- El modelo queda en su lugar de salida en el servidor. Atomic: con streaming el cliente lo recibe entero (no por
+	-- partes), asi puede moverlo sin que le falten piezas.
+	auto.modelo.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	local pos = auto.posicion
+	auto.modelo:PivotTo(CFrame.lookAt(pos, pos + direccion(auto.carril)))
+	auto.publicadoFrenado = false
+	publicar(auto, VELOCIDAD)
 end
 
 -- Hay algo en el camino? Mira un rectangulo adelante del auto.
@@ -175,10 +192,19 @@ RunService.Heartbeat:Connect(function(dt)
 		luzFreno(auto, frenar)
 		if not frenar then
 			auto.avance += VELOCIDAD * dt
-			if auto.avance > LIMITE then
+			local dioLaVuelta = auto.avance > LIMITE
+			if dioLaVuelta then
 				auto.avance = -LIMITE -- vuelve a entrar por el otro lado de la ciudad
 			end
-			ubicar(auto)
+			actualizarPosicion(auto)
+			if dioLaVuelta then
+				publicar(auto, VELOCIDAD) -- salto de un borde al otro: el cliente lo sigue sin suavizar
+			end
+		end
+		-- Frena o arranca: se publica desde donde esta ahora, con la velocidad nueva
+		if auto.publicadoFrenado ~= frenar then
+			auto.publicadoFrenado = frenar
+			publicar(auto, frenar and 0 or VELOCIDAD)
 		end
 	end
 end)
