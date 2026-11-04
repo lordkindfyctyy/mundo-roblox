@@ -17,10 +17,20 @@
         "$path": "src/StarterPlayerScripts"
       }
     },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Technology": "ShadowMap"
+      }
+    },
     "Workspace": {
       "$className": "Workspace",
       "$properties": {
-        "FilteringEnabled": true
+        "FilteringEnabled": true,
+        "StreamingEnabled": true,
+        "StreamingMinRadius": 64,
+        "StreamingTargetRadius": 320,
+        "StreamingIntegrityMode": "PauseOutsideLoadedArea"
       }
     }
   }

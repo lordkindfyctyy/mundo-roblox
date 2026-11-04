@@ -29,7 +29,8 @@ sin eso es adivinar.
 4. **Instancias.** Crear el mundo una sola vez al arrancar está bien. Lo que se crea por evento (un sonido por moneda,
    efectos) conviene hacerlo en el cliente. No crear tablas ni instancias dentro de bucles que corren seguido.
 5. **Efectos visuales y sonidos** solo en el cliente cuando no afectan al juego.
-6. **Mascotas:** hoy se mueven desde el servidor (~22 Kbps y ~0,33 ms por mascota) y escalan mal con muchos jugadores.
+6. **Celulares:** el cuello de botella en un Moto G06 (3,8 GB de RAM) era DIBUJAR la escena, no los scripts: un hilo de Roblox al 84% con el de los scripts al 35%, 29-38 FPS y ~780 MB. `ModoCelular.client.lua` recorta lo caro solo en dispositivos sin teclado; `default.project.json` fija la iluminacion (`ShadowMap`) y el streaming (radio 320). Para probarlo en Studio se crea un `BoolValue` llamado `ForzarCelular` en `ReplicatedStorage` (y se borra despues). Los cambios solo llegan al celular **publicando** el lugar desde Studio.
+7. **Mascotas:** hoy se mueven desde el servidor (~22 Kbps y ~0,33 ms por mascota) y escalan mal con muchos jugadores.
    Pendiente pasarlas al cliente con el patrón del punto 1.
 
 ## Datos (DataStore)
