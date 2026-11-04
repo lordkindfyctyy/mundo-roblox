@@ -13,7 +13,6 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Plano = require(script.Parent:WaitForChild("PlanoCiudad"))
@@ -468,10 +467,13 @@ end
 parte(rueda, "Eje", Vector3.new(2, 2, 9), CFrame.new(EJE) * DE_FRENTE, GRIS, Enum.Material.Metal, Enum.PartType.Cylinder)
 
 -- Lo que gira: aro y rayos. Se guarda cada pieza con su lugar relativo al eje.
-local giran = {}
+-- El giro lo hace cada cliente (RuedaGigante.client.lua): mover estas ~75 piezas desde el servidor en cada frame
+-- replicaba miles de cambios por segundo a todos los jugadores. El servidor solo deja cada pieza en su lugar de
+-- partida y publica en atributos lo que el cliente necesita: "Relativo" en cada pieza, "Angulo" en cada cabina y
+-- Eje, Radio, Velocidad y Desde (hora del servidor) en la carpeta de la rueda.
 local function pieza(nombre, tamano, relativo, color, material)
 	local p = parte(rueda, nombre, tamano, CFrame.new(EJE) * relativo, color, material or Enum.Material.Metal, nil, false)
-	table.insert(giran, { parte = p, relativo = relativo })
+	p:SetAttribute("Relativo", relativo)
 	return p
 end
 local SEGMENTOS = 24
@@ -487,7 +489,6 @@ for i = 0, RAYOS - 1 do
 end
 
 -- Cabinas colgando, siempre derechas
-local cabinas = {}
 for i = 1, CABINAS do
 	local color = COLORES[(i - 1) % #COLORES + 1]
 	local modelo = Instance.new("Model")
@@ -498,19 +499,15 @@ for i = 1, CABINAS do
 	parte(modelo, "Techo", Vector3.new(4.4, 0.3, 3.4), CFrame.new(0, 0.2, 0), color, Enum.Material.SmoothPlastic, nil, false)
 	parte(modelo, "Colgante", Vector3.new(0.3, 3, 0.3), CFrame.new(0, -1.3, 0), GRIS, Enum.Material.Metal, nil, false)
 	modelo.WorldPivot = CFrame.new()
+	local angulo = (i - 1) / CABINAS * math.pi * 2
+	-- en su lugar de partida (el cliente la mueve desde ahi); Atomic: con streaming llega entera, no por partes
+	modelo:PivotTo(CFrame.new(EJE + Vector3.new(-math.sin(angulo) * RADIO, math.cos(angulo) * RADIO, 0)))
+	modelo:SetAttribute("Angulo", angulo)
+	modelo.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	modelo.Parent = rueda
-	table.insert(cabinas, { modelo = modelo, angulo = (i - 1) / CABINAS * math.pi * 2 })
 end
 
-local giro = 0
-RunService.Heartbeat:Connect(function(dt)
-	giro += VELOCIDAD_RUEDA * dt
-	local centro = CFrame.new(EJE)
-	for _, g in giran do
-		g.parte.CFrame = centro * CFrame.Angles(0, 0, giro) * g.relativo
-	end
-	for _, c in cabinas do
-		local a = c.angulo + giro
-		c.modelo:PivotTo(CFrame.new(EJE + Vector3.new(-math.sin(a) * RADIO, math.cos(a) * RADIO, 0)))
-	end
-end)
+rueda:SetAttribute("Eje", EJE)
+rueda:SetAttribute("Radio", RADIO)
+rueda:SetAttribute("Velocidad", VELOCIDAD_RUEDA)
+rueda:SetAttribute("Desde", Workspace:GetServerTimeNow())

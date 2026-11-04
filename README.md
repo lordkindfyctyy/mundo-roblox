@@ -71,6 +71,7 @@ Juego de Roblox hecho con Luau y sincronizado con [Rojo](https://rojo.space): un
 | `src/ReplicatedStorage/ConfigTrabajos.lua` | Los trabajos: pago, tiempo y colores |
 | `src/StarterPlayerScripts/Trabajos.client.lua` | Tarjeta del trabajo, botón Dejar y la columna naranja en el destino |
 | `src/ServerScriptService/Diversiones.server.lua` | El parque de diversiones: vías, juegos, trampolines, cofre y rueda gigante |
+| `src/StarterPlayerScripts/RuedaGigante.client.lua` | Hace girar la rueda gigante en el cliente con la hora del servidor (el servidor ya no la mueve) |
 | `src/ReplicatedStorage/Recorridos.lua` | Recorridos de la montaña rusa y el tobogán (curva, velocidad y duración) |
 | `src/StarterPlayerScripts/Diversiones.client.lua` | Mueve al jugador por la montaña rusa y el tobogán, y hace rebotar los trampolines |
 | `src/ServerScriptService/Jefe.server.lua` | El Monstruo de Monedas: aparición, caminata, pisotones, vida y premios |
